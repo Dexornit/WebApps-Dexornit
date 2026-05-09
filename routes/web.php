@@ -4,7 +4,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\InstallerController;
 use Illuminate\Support\Facades\Route;
+
+// Installer routes
+Route::get('/install', [InstallerController::class, 'index'])->name('installer.index');
+Route::post('/install', [InstallerController::class, 'install'])->name('installer.install');
 
 // Landing page routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
