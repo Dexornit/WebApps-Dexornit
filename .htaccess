@@ -1,4 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    
+    # Don't rewrite if file exists (for test.php, show-error.php, etc)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Redirect everything else to public folder
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
