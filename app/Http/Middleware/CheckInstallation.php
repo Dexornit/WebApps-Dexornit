@@ -4,39 +4,49 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckInstallation
 {
     /**
      * Handle an incoming request.
+     * 
+     * Mirrors TMail's VerifyInstall pattern:
+     * - If not installed → auto key:generate → redirect to /install
+     * - If already installed → allow through
+     * - If accessing /install and already installed → redirect to /
      */
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $installedMarker = storage_path('app/.installed');
-            $isInstalled = file_exists($installedMarker);
-            
+            $isInstalled = file_exists(storage_path('app/.installed'));
+
             // If accessing installer routes
             if ($request->is('install') || $request->is('install/*')) {
                 if ($isInstalled) {
-                    // Already installed, redirect to home
-                    return redirect('/')->with('error', 'Application is already installed.');
+                    return redirect('/')->with('info', 'Aplikasi sudah terinstal.');
                 }
-                // Not installed, allow access to installer
+                // Generate APP_KEY if empty (needed for CSRF on installer form)
+                if (empty(config('app.key'))) {
+                    Artisan::call('key:generate', ['--force' => true]);
+                }
                 return $next($request);
             }
-            
-            // If accessing other routes and not installed
+
+            // If not installed and accessing any other route
             if (!$isInstalled) {
+                // Auto-generate key if missing so installer page works
+                if (empty(config('app.key'))) {
+                    Artisan::call('key:generate', ['--force' => true]);
+                }
                 return redirect('/install');
             }
-            
-            // Installed and accessing normal routes
+
             return $next($request);
+
         } catch (\Exception $e) {
-            // If middleware fails, allow request to continue
-            // This prevents 500 errors on shared hosting
+            // Never block on middleware failure (shared hosting safety net)
             return $next($request);
         }
     }
