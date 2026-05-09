@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('emoji', 10);
-            $table->enum('category', ['streaming', 'tools', 'gaming']);
+            $table->string('emoji', 10)->nullable();
+            $table->string('logo_path')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->text('short_description');
             $table->text('full_description');
             $table->text('warranty')->nullable();

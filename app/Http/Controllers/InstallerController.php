@@ -44,29 +44,56 @@ class InstallerController extends Controller
             // Step 2: Generate APP_KEY
             Artisan::call('key:generate', ['--force' => true]);
             
-            // Step 3: Clear config cache
-            Artisan::call('config:clear');
+            // Step 3: Clear all caches
+            try { Artisan::call('config:clear'); } catch (Exception $e) {}
+            try { Artisan::call('cache:clear'); } catch (Exception $e) {}
+            try { Artisan::call('route:clear'); } catch (Exception $e) {}
+            try { Artisan::call('view:clear'); } catch (Exception $e) {}
             
-            // Step 4: Test database connection
+            // Step 4: Ensure storage directories exist and are writable
+            $this->ensureStorageDirectories();
+            
+            // Step 5: Re-load config with new .env values
+            // Purge config cache so new DB connection is used
+            app()->forgetInstance('config');
+            
+            // Step 6: Test database connection
+            DB::purge();
+            DB::reconnect();
             DB::connection()->getPdo();
             
-            // Step 5: Run migrations
+            // Step 7: Run migrations
             Artisan::call('migrate', ['--force' => true]);
             
-            // Step 6: Create admin user
+            // Step 8: Create storage symlink if not exists
+            if (!file_exists(public_path('storage'))) {
+                try {
+                    Artisan::call('storage:link');
+                } catch (Exception $e) {
+                    // Ignore if symlink cannot be created
+                }
+            }
+            
+            // Step 9: Create admin user
             User::create([
                 'name' => $validated['admin_name'],
                 'email' => $validated['admin_email'],
                 'password' => Hash::make($validated['admin_password']),
             ]);
             
-            // Step 7: Create installation marker
+            // Step 10: Create installation marker
             $this->createInstallationMarker($validated);
             
-            return redirect('/login')->with('success', 'Installation completed successfully! Please login with your admin credentials.');
+            // Step 11: Remove vite hot file if exists (production mode)
+            $hotFile = public_path('hot');
+            if (file_exists($hotFile)) {
+                @unlink($hotFile);
+            }
+            
+            return redirect('/login')->with('success', 'Instalasi berhasil! Silakan login dengan akun admin Anda.');
             
         } catch (Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Installation failed: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['error' => 'Instalasi gagal: ' . $e->getMessage()]);
         }
     }
     
@@ -74,8 +101,8 @@ class InstallerController extends Controller
     {
         $requirements = [
             'php_version' => [
-                'name' => 'PHP Version >= 8.3',
-                'status' => version_compare(PHP_VERSION, '8.3.0', '>='),
+                'name' => 'PHP Version >= 8.1',
+                'status' => version_compare(PHP_VERSION, '8.1.0', '>='),
                 'current' => PHP_VERSION,
             ],
             'extensions' => [],
@@ -104,12 +131,38 @@ class InstallerController extends Controller
         return $requirements;
     }
     
+    private function ensureStorageDirectories()
+    {
+        $dirs = [
+            storage_path('app'),
+            storage_path('app/public'),
+            storage_path('app/public/logos'),
+            storage_path('app/public/products'),
+            storage_path('framework'),
+            storage_path('framework/cache'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+        ];
+
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0775, true);
+            }
+        }
+    }
+    
     private function updateEnvFile($data)
     {
         $envPath = base_path('.env');
         
         if (!file_exists($envPath)) {
-            copy(base_path('.env.example'), $envPath);
+            if (file_exists(base_path('.env.example'))) {
+                copy(base_path('.env.example'), $envPath);
+            } else {
+                file_put_contents($envPath, '');
+            }
         }
         
         $envContent = file_get_contents($envPath);
@@ -117,10 +170,21 @@ class InstallerController extends Controller
         // Update APP settings
         $envContent = $this->updateEnvValue($envContent, 'APP_NAME', $data['app_name']);
         $envContent = $this->updateEnvValue($envContent, 'APP_URL', $data['app_url']);
+        $envContent = $this->updateEnvValue($envContent, 'APP_ENV', 'production');
+        $envContent = $this->updateEnvValue($envContent, 'APP_DEBUG', 'false');
         
         // Update DB settings
         if ($data['db_type'] === 'sqlite') {
             $envContent = $this->updateEnvValue($envContent, 'DB_CONNECTION', 'sqlite');
+            
+            // Remove or comment mysql-specific settings
+            $envContent = $this->updateEnvValue($envContent, 'DB_HOST', '127.0.0.1');
+            $envContent = $this->updateEnvValue($envContent, 'DB_PORT', '3306');
+            $envContent = $this->updateEnvValue($envContent, 'DB_DATABASE', database_path('database.sqlite'));
+            $envContent = $this->updateEnvValue($envContent, 'DB_USERNAME', 'root');
+            $envContent = $this->updateEnvValue($envContent, 'DB_PASSWORD', '');
+            
+            // Ensure SQLite file exists
             $dbPath = database_path('database.sqlite');
             if (!file_exists($dbPath)) {
                 touch($dbPath);
@@ -134,22 +198,24 @@ class InstallerController extends Controller
             $envContent = $this->updateEnvValue($envContent, 'DB_PASSWORD', $data['db_pass'] ?? '');
         }
         
+        // Set session, cache, queue to file/cookie-based for shared hosting compatibility
+        $envContent = $this->updateEnvValue($envContent, 'SESSION_DRIVER', 'file');
+        $envContent = $this->updateEnvValue($envContent, 'CACHE_STORE', 'file');
+        $envContent = $this->updateEnvValue($envContent, 'QUEUE_CONNECTION', 'sync');
+        
         file_put_contents($envPath, $envContent);
     }
     
     private function updateEnvValue($envContent, $key, $value)
     {
-        $oldValue = env($key);
         $pattern = "/^{$key}=.*/m";
         
-        // Escape special characters in value
-        $escapedValue = addslashes($value);
-        
-        // Add quotes if value contains spaces
-        if (strpos($value, ' ') !== false) {
+        // Add quotes if value contains spaces or special characters
+        if (preg_match('/\s|[#&]/', $value)) {
+            $escapedValue = str_replace('"', '\\"', $value);
             $newLine = "{$key}=\"{$escapedValue}\"";
         } else {
-            $newLine = "{$key}={$escapedValue}";
+            $newLine = "{$key}={$value}";
         }
         
         if (preg_match($pattern, $envContent)) {
@@ -161,6 +227,11 @@ class InstallerController extends Controller
     
     private function createInstallationMarker($data)
     {
+        $appDir = storage_path('app');
+        if (!is_dir($appDir)) {
+            @mkdir($appDir, 0775, true);
+        }
+        
         $markerData = [
             'installed_at' => now()->toDateTimeString(),
             'version' => '1.0.0',
