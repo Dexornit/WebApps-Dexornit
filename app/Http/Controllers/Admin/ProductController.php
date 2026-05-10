@@ -16,15 +16,26 @@ class ProductController extends Controller
         $query = Product::withTrashed()->with(['variants', 'category']);
 
         // Search functionality
-        if ($request->has('search') && $request->search != '') {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where('name', 'like', "%{$search}%");
         }
 
         // Category filter
-        if ($request->has('category') && $request->category != '') {
+        if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
+
+        // Status filter
+        $status = $request->get('status', '');
+        if ($status === 'active') {
+            $query->where('status', true)->whereNull('deleted_at');
+        } elseif ($status === 'inactive') {
+            $query->where('status', false)->whereNull('deleted_at');
+        } elseif ($status === 'deleted') {
+            $query->whereNotNull('deleted_at');
+        }
+        // '' = all (default, withTrashed already applied)
 
         // Pagination
         $products = $query->orderBy('created_at', 'desc')->paginate(15);

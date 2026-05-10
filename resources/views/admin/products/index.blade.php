@@ -46,7 +46,7 @@
 <!-- Search & Filter Bar -->
 <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-brutal); margin-bottom: 24px;">
     <form method="GET" action="{{ route('admin.products.index') }}">
-        <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 12px; align-items: center;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: center;">
             <!-- Search Input -->
             <div style="position: relative;">
                 <input 
@@ -74,12 +74,20 @@
                 @endforeach
             </select>
 
+            <!-- Status Filter -->
+            <select name="status" style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none; cursor: pointer;">
+                <option value=""    {{ request('status') === ''        ? 'selected' : '' }}>All Status</option>
+                <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>✅ Active</option>
+                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>⏸ Inactive</option>
+                <option value="deleted"  {{ request('status') === 'deleted'  ? 'selected' : '' }}>🗑 Deleted</option>
+            </select>
+
             <!-- Action Buttons -->
             <div style="display: flex; gap: 8px;">
                 <button type="submit" style="padding: 12px 24px; background: var(--color-coral); color: white; border: var(--border-width) solid var(--border-color); border-radius: 10px; font-family: var(--font-heading); font-weight: 600; cursor: pointer; box-shadow: 3px 3px 0px var(--color-black); transition: all 0.2s ease; white-space: nowrap;">
                     Filter
                 </button>
-                @if(request('search') || request('category'))
+                @if(request('search') || request('category') || request('status'))
                     <a href="{{ route('admin.products.index') }}" style="padding: 12px 24px; background: var(--color-white); color: var(--color-black); border: var(--border-width) solid var(--border-color); border-radius: 10px; font-family: var(--font-heading); font-weight: 600; text-decoration: none; box-shadow: 3px 3px 0px var(--color-black); transition: all 0.2s ease; white-space: nowrap; display: inline-flex; align-items: center;">
                         Clear
                     </a>
@@ -286,7 +294,7 @@
 
 @push('styles')
 <style>
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         table {
             font-size: 0.85rem;
         }
@@ -302,7 +310,7 @@
             gap: 8px !important;
         }
 
-        /* Responsive filter bar */
+        /* Responsive filter bar - stack on mobile */
         form > div[style*="grid-template-columns"] {
             grid-template-columns: 1fr !important;
         }

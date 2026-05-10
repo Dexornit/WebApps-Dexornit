@@ -307,7 +307,81 @@
         .admin-overlay.active {
             display: block;
         }
-    </style>
+
+        /* ─── Toast Notification ─── */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #fff;
+            border: 2.5px solid var(--color-black);
+            border-radius: 14px;
+            box-shadow: 5px 5px 0px var(--color-black);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 300px;
+            max-width: 420px;
+            pointer-events: all;
+            transform: translateX(120%);
+            transition: transform 0.35s cubic-bezier(.175,.885,.32,1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.hide { transform: translateX(120%); }
+        .toast__icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+        .toast__body { flex: 1; }
+        .toast__title { font-weight: 700; font-size: 0.92rem; margin-bottom: 2px; }
+        .toast__msg   { color: #555; font-size: 0.85rem; line-height: 1.4; }
+        .toast__close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            transition: color .15s;
+        }
+        .toast__close:hover { color: #333; }
+        .toast__bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            transform-origin: left;
+            animation: toastBar 4s linear forwards;
+        }
+        @keyframes toastBar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+        .toast--success .toast__icon { background: #d1fae5; color: #059669; }
+        .toast--success .toast__bar  { background: #059669; }
+        .toast--error   .toast__icon { background: #fee2e2; color: #dc2626; }
+        .toast--error   .toast__bar  { background: #dc2626; }
+        .toast--info    .toast__icon { background: #dbeafe; color: #2563eb; }
+        .toast--info    .toast__bar  { background: #2563eb; }
 
     @stack('styles')
 </head>
@@ -426,11 +500,66 @@
         </main>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Mobile Overlay -->
     <div class="admin-overlay" id="adminOverlay"></div>
 
     <script>
-        // Mobile menu toggle
+        // ─── Toast System ───────────────────────────────────────────────
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                success: '✓',
+                error:   '✕',
+                info:    'ℹ'
+            };
+            const titles = { success: 'Berhasil!', error: 'Error!', info: 'Info' };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.innerHTML = `
+                <div class="toast__icon">${icons[type] || 'ℹ'}</div>
+                <div class="toast__body">
+                    <div class="toast__title">${title || titles[type]}</div>
+                    <div class="toast__msg">${message}</div>
+                </div>
+                <button class="toast__close" onclick="dismissToast(this.parentElement)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div class="toast__bar"></div>
+            `;
+            container.appendChild(toast);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => toast.classList.add('show'));
+            });
+
+            // Auto dismiss
+            setTimeout(() => dismissToast(toast), 4000);
+        }
+
+        function dismissToast(toast) {
+            if (!toast) return;
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 400);
+        }
+
+        // ─── Show toasts from session ────────────────────────────────────
+        @if(session('success'))
+            showToast('success', 'Berhasil!', @json(session('success')));
+        @endif
+        @if(session('error'))
+            showToast('error', 'Error!', @json(session('error')));
+        @endif
+        @if(session('info'))
+            showToast('info', 'Info', @json(session('info')));
+        @endif
+
+        // ─── Mobile menu toggle ──────────────────────────────────────────
         const mobileToggle = document.getElementById('mobileToggle');
         const adminSidebar = document.getElementById('adminSidebar');
         const adminOverlay = document.getElementById('adminOverlay');
