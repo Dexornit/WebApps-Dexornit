@@ -4,16 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckInstallation
 {
     /**
      * Handle an incoming request.
-     * 
-     * Mirrors TMail's VerifyInstall pattern:
-     * - If not installed → auto key:generate → redirect to /install
+     *
+     * - If not installed → redirect to /install
      * - If already installed → allow through
      * - If accessing /install and already installed → redirect to /
      */
@@ -22,24 +20,16 @@ class CheckInstallation
         try {
             $isInstalled = file_exists(storage_path('app/.installed'));
 
-            // If accessing installer routes
+            // If accessing installer routes — let it through regardless
             if ($request->is('install') || $request->is('install/*')) {
                 if ($isInstalled) {
                     return redirect('/')->with('info', 'Aplikasi sudah terinstal.');
                 }
-                // Generate APP_KEY if empty (needed for CSRF on installer form)
-                if (empty(config('app.key'))) {
-                    Artisan::call('key:generate', ['--force' => true]);
-                }
                 return $next($request);
             }
 
-            // If not installed and accessing any other route
+            // If not installed and accessing any other route → redirect to installer
             if (!$isInstalled) {
-                // Auto-generate key if missing so installer page works
-                if (empty(config('app.key'))) {
-                    Artisan::call('key:generate', ['--force' => true]);
-                }
                 return redirect('/install');
             }
 
@@ -47,6 +37,12 @@ class CheckInstallation
 
         } catch (\Exception $e) {
             // Never block on middleware failure (shared hosting safety net)
+            // Log it silently and pass through
+            try {
+                \Illuminate\Support\Facades\Log::error('CheckInstallation middleware error: ' . $e->getMessage());
+            } catch (\Exception $logError) {
+                // Even logging failed — just continue
+            }
             return $next($request);
         }
     }

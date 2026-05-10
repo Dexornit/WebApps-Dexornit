@@ -1,27 +1,20 @@
 <?php
 /**
- * Wanseven Entry Point
+ * Dexornit Store - Public Entry Point
+ * Laravel 12 Application
  */
 
-// Check if installed
-if (!file_exists(__DIR__ . '/../storage/app/.installed')) {
-    if (basename($_SERVER['PHP_SELF']) !== 'install.php') {
-        header('Location: /install.php');
-        exit;
-    }
-    exit;
-}
+define('LARAVEL_START', microtime(true));
 
-// Check vendor
+// ─── Safety: Check vendor ────────────────────────────────────────────────────
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    die('Vendor folder missing! Upload vendor/ folder or run: composer install');
+    http_response_code(503);
+    die('<h2 style="font-family:monospace;padding:2rem;color:#c0392b">⚠ Vendor folder missing!<br><small>Upload the <code>vendor/</code> folder or run <code>composer install</code> on the server.</small></h2>');
 }
 
-// Boot Laravel
+// ─── Boot Laravel ────────────────────────────────────────────────────────────
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
-
-define('LARAVEL_START', microtime(true));
 
 if (file_exists($maintenance = __DIR__ . '/../storage/framework/maintenance.php')) {
     require $maintenance;

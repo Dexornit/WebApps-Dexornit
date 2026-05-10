@@ -18,10 +18,7 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # EXCLUDE installer from Laravel routing
-    RewriteCond %{REQUEST_URI} !^/install\.php$
-    
-    # Send Requests To Front Controller...
+    # Send Requests To Front Controller (skip real files)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
