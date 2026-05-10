@@ -8,9 +8,13 @@
 $installedMarker = __DIR__ . '/../storage/app/.installed';
 
 if (!file_exists($installedMarker)) {
-    // NOT INSTALLED - Redirect to installer
-    header('Location: /install.php');
-    exit('Redirecting to installer...');
+    // NOT INSTALLED - Redirect to installer (only if not already there)
+    if (basename($_SERVER['PHP_SELF']) !== 'install.php') {
+        header('Location: /install.php');
+        exit('Redirecting to installer...');
+    }
+    // If already on install.php, let it load
+    exit;
 }
 
 // INSTALLED - Check if vendor exists

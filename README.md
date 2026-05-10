@@ -22,36 +22,68 @@ A modern e-commerce application built with Laravel 13.7, featuring an intuitive 
 
 ## Installation
 
-### Quick Installation (Web Installer)
+### 🚀 Quick Deploy to Shared Hosting
 
-1. Clone the repository and install dependencies:
+**Step 1: Prepare Locally**
 ```bash
-git clone <repository-url>
-cd wanseven
 composer install
 npm install && npm run build
 ```
 
-2. Set proper permissions:
+**Step 2: Upload to Server**
+Upload ALL files including the `vendor/` folder to your hosting.
+
+⚠️ **IMPORTANT:** Make sure `vendor/` folder is uploaded! This is the most common cause of errors.
+
+**Step 3: Check Status**
+Visit: `https://yourdomain.com/check.php` to verify all requirements are met.
+
+**Step 4: Run Installer**
+Visit: `https://yourdomain.com/install.php` and follow the 3-step wizard:
+- Configure database (SQLite recommended for shared hosting)
+- Create admin account
+- Complete installation
+
+**Step 5: Done!**
+Your website is ready at `https://yourdomain.com`
+
+📖 **Need help?** See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed guide and troubleshooting.
+
+---
+
+### 🛠️ Local Development Installation
+
+### 🛠️ Local Development Installation
+
+For local development:
+
 ```bash
+# Clone and install
+git clone <repository-url>
+cd wanseven
+composer install
+npm install && npm run build
+# Set permissions
 chmod -R 775 storage bootstrap/cache
+
+# Copy environment and generate key
+cp .env.example .env
+php artisan key:generate
+
+# Setup database
+php artisan migrate
+php artisan db:seed
+
+# Start dev server
+php artisan serve
+npm run dev
 ```
 
-3. Access your application URL in a browser (e.g., `http://localhost:8000` or `http://wanseven.com`)
+Access at `http://localhost:8000` - installer will run automatically.
 
-4. You will be automatically redirected to the web installer at `/install`
+---
 
-5. Follow the installation wizard:
-   - Environment requirements will be checked automatically
-   - Configure your database (SQLite or MySQL)
-   - Create your admin account
-   - Set application settings
-
-6. After installation completes, you'll be redirected to the login page
-
-7. Login with your admin credentials and start managing your store!
-
-### Manual Installation (Alternative)
+### ⚙️ Manual Installation (Alternative)
 
 If you prefer manual installation:
 
