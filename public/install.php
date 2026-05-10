@@ -93,19 +93,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $env = preg_replace('/^APP_DEBUG=.*/m', 'APP_DEBUG=false', $env);
             
             if ($_SESSION['db_type'] === 'sqlite') {
+                // SQLite: Set connection and comment out MySQL settings
                 $env = preg_replace('/^DB_CONNECTION=.*/m', 'DB_CONNECTION=sqlite', $env);
+                $env = preg_replace('/^DB_HOST=.*/m', '# DB_HOST=127.0.0.1', $env);
+                $env = preg_replace('/^DB_PORT=.*/m', '# DB_PORT=3306', $env);
+                $env = preg_replace('/^DB_DATABASE=.*/m', '# DB_DATABASE=laravel', $env);
+                $env = preg_replace('/^DB_USERNAME=.*/m', '# DB_USERNAME=root', $env);
+                $env = preg_replace('/^DB_PASSWORD=.*/m', '# DB_PASSWORD=', $env);
+                
+                // Create SQLite database file
                 $dbPath = __DIR__ . '/../database/database.sqlite';
                 if (!file_exists($dbPath)) {
                     touch($dbPath);
+                    chmod($dbPath, 0644);
                 }
                 $logs[] = "✓ SQLite database created";
             } else {
-                $env = preg_replace('/^DB_CONNECTION=.*/m', 'DB_CONNECTION=mysql', $env);
-                $env = preg_replace('/^DB_HOST=.*/m', 'DB_HOST=' . $_SESSION['db_host'], $env);
-                $env = preg_replace('/^DB_PORT=.*/m', 'DB_PORT=' . $_SESSION['db_port'], $env);
-                $env = preg_replace('/^DB_DATABASE=.*/m', 'DB_DATABASE=' . $_SESSION['db_name'], $env);
-                $env = preg_replace('/^DB_USERNAME=.*/m', 'DB_USERNAME=' . $_SESSION['db_user'], $env);
-                $env = preg_replace('/^DB_PASSWORD=.*/m', 'DB_PASSWORD=' . $_SESSION['db_pass'], $env);
+                // MySQL: Uncomment and set values
+                $env = preg_replace('/^[#\s]*DB_CONNECTION=.*/m', 'DB_CONNECTION=mysql', $env);
+                $env = preg_replace('/^[#\s]*DB_HOST=.*/m', 'DB_HOST=' . $_SESSION['db_host'], $env);
+                $env = preg_replace('/^[#\s]*DB_PORT=.*/m', 'DB_PORT=' . $_SESSION['db_port'], $env);
+                $env = preg_replace('/^[#\s]*DB_DATABASE=.*/m', 'DB_DATABASE=' . $_SESSION['db_name'], $env);
+                $env = preg_replace('/^[#\s]*DB_USERNAME=.*/m', 'DB_USERNAME=' . $_SESSION['db_user'], $env);
+                $env = preg_replace('/^[#\s]*DB_PASSWORD=.*/m', 'DB_PASSWORD=' . $_SESSION['db_pass'], $env);
                 $logs[] = "✓ MySQL configured";
             }
             
@@ -116,33 +126,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $logs[] = "→ Running database migrations...";
             
             if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-                // Boot Laravel
-                require __DIR__ . '/../vendor/autoload.php';
-                $app = require_once __DIR__ . '/../bootstrap/app.php';
-                
-                // Run migrations
-                $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-                $kernel->bootstrap();
-                
-                // Migrate
-                $migrationOutput = $kernel->call('migrate', ['--force' => true]);
-                $logs[] = "✓ Migrations completed";
-                
-                // Create admin user
-                $logs[] = "→ Creating admin user...";
-                $user = new \App\Models\User();
-                $user->name = $_SESSION['admin_name'];
-                $user->email = $_SESSION['admin_email'];
-                $user->password = $_SESSION['admin_password_hash'];
-                $user->save();
-                $logs[] = "✓ Admin user created: " . $_SESSION['admin_email'];
-                
-                // Seed categories (optional)
                 try {
-                    $kernel->call('db:seed', ['--force' => true, '--class' => 'Database\\Seeders\\DatabaseSeeder']);
-                    $logs[] = "✓ Sample data seeded";
-                } catch (Exception $e) {
-                    $logs[] = "⚠ Seeding skipped (optional)";
+                    // Boot Laravel
+                    require __DIR__ . '/../vendor/autoload.php';
+                    $app = require_once __DIR__ . '/../bootstrap/app.php';
+                    
+                    // Run migrations
+                    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+                    $kernel->bootstrap();
+                    
+                    // Test database connection first
+                    try {
+                        \Illuminate\Support\Facades\DB::connection()->getPdo();
+                        $logs[] = "✓ Database connection successful";
+                    } catch (Exception $dbError) {
+                        throw new Exception("Database connection failed: " . $dbError->getMessage());
+                    }
+                    
+                    // Migrate
+                    $migrationOutput = $kernel->call('migrate', ['--force' => true]);
+                    $logs[] = "✓ Migrations completed";
+                    
+                    // Create admin user
+                    $logs[] = "→ Creating admin user...";
+                    $user = new \App\Models\User();
+                    $user->name = $_SESSION['admin_name'];
+                    $user->email = $_SESSION['admin_email'];
+                    $user->password = $_SESSION['admin_password_hash'];
+                    $user->save();
+                    $logs[] = "✓ Admin user created: " . $_SESSION['admin_email'];
+                    
+                    // Seed categories (optional)
+                    try {
+                        $kernel->call('db:seed', ['--force' => true, '--class' => 'Database\\Seeders\\DatabaseSeeder']);
+                        $logs[] = "✓ Sample data seeded";
+                    } catch (Exception $e) {
+                        $logs[] = "⚠ Seeding skipped (optional)";
+                    }
+                    
+                } catch (Exception $laravelError) {
+                    throw new Exception("Laravel error: " . $laravelError->getMessage());
                 }
                 
             } else {
@@ -248,16 +271,24 @@ $step = $_GET['step'] ?? 1;
             <?php elseif ($step == 2): ?>
                 <!-- Step 2: Database Setup -->
                 <h2 class="text-2xl font-semibold mb-4">🗄️ Database Configuration</h2>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                    <p class="text-sm text-blue-800"><strong>💡 Recommendation:</strong> Choose SQLite for easiest setup - no database configuration needed!</p>
+                </div>
+                
                 <form method="POST">
                     <input type="hidden" name="step" value="2">
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Database Type</label>
                         <select name="db_type" id="dbType" onchange="toggleDb()" class="w-full px-3 py-2 border rounded">
                             <option value="sqlite">SQLite (Recommended - No setup needed)</option>
-                            <option value="mysql">MySQL</option>
+                            <option value="mysql">MySQL (Requires existing database)</option>
                         </select>
                     </div>
                     <div id="mysqlFields" style="display:none" class="space-y-2 mb-4">
+                        <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800 mb-3">
+                            ⚠️ Make sure you have created the MySQL database first!
+                        </div>
                         <input type="text" name="db_host" placeholder="Host" value="localhost" class="w-full px-3 py-2 border rounded">
                         <input type="text" name="db_port" placeholder="Port" value="3306" class="w-full px-3 py-2 border rounded">
                         <input type="text" name="db_name" placeholder="Database Name" class="w-full px-3 py-2 border rounded">
