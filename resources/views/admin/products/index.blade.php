@@ -46,7 +46,7 @@
 <!-- Search & Filter Bar -->
 <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-brutal); margin-bottom: 24px;">
     <form method="GET" action="{{ route('admin.products.index') }}">
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: center;">
+        <div class="admin-filter-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: center;">
             <!-- Search Input -->
             <div style="position: relative;">
                 <input 
@@ -257,6 +257,76 @@
                 </div>
             </div>
         @endif
+
+        {{-- ─── MOBILE CARDS (≤768px, table hidden via CSS) ─── --}}
+        <div class="prod-mobile-list">
+            @foreach($products as $product)
+            <div class="prod-m-card {{ $product->trashed() ? 'prod-m-card--deleted' : '' }}">
+                <div class="prod-m-card__top">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:1.8rem;">{{ $product->emoji }}</span>
+                        <div>
+                            <div style="font-weight:700;font-size:.88rem;">
+                                {{ $product->name }}
+                                @if($product->trashed())<span class="badge-deleted">DELETED</span>@endif
+                            </div>
+                            <div style="font-size:.75rem;color:#888;">{{ Str::limit($product->short_description, 40) }}</div>
+                        </div>
+                    </div>
+                    @if($product->trashed())
+                        <span class="prod-badge prod-badge--del">Deleted</span>
+                    @elseif($product->status)
+                        <span class="prod-badge prod-badge--ok">Active</span>
+                    @else
+                        <span class="prod-badge prod-badge--off">Inactive</span>
+                    @endif
+                </div>
+                <div class="prod-m-card__meta">
+                    <div>
+                        <div class="meta-label">Kategori</div>
+                        @if($product->category)
+                            <span class="prod-badge" style="background:{{ $product->category->color }};">
+                                {{ $product->category->icon }} {{ $product->category->name }}
+                            </span>
+                        @else
+                            <span style="color:#888;font-size:.8rem;">—</span>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="meta-label">Harga mulai</div>
+                        @if($product->variants->count() > 0)
+                            <span style="font-weight:700;color:var(--color-coral);font-size:.88rem;">Rp {{ number_format($product->variants->min('price'), 0, ',', '.') }}</span>
+                            <div style="font-size:.72rem;color:#888;">{{ $product->variants->count() }} variant(s)</div>
+                        @else
+                            <span style="color:#888;font-size:.8rem;">No variants</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="prod-m-card__actions">
+                    @if($product->trashed())
+                        <form method="POST" action="{{ route('admin.products.restore', $product->id) }}" style="flex:1;">
+                            @csrf
+                            <button type="submit" class="prod-btn prod-btn--green" style="width:100%;">Restore</button>
+                        </form>
+                    @else
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="prod-btn prod-btn--blue" style="flex:1;text-align:center;">Edit</a>
+                        <form method="POST" action="{{ route('admin.products.toggleStatus', $product->id) }}" style="flex:1;">
+                            @csrf
+                            <button type="submit" class="prod-btn {{ $product->status ? 'prod-btn--yellow' : 'prod-btn--green' }}" style="width:100%;">
+                                {{ $product->status ? 'Deactivate' : 'Activate' }}
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}" style="flex:1;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Delete this product?')" class="prod-btn prod-btn--red" style="width:100%;">Delete</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+
     @else
         <!-- Empty State -->
         <div style="text-align: center; padding: 60px 20px;">
@@ -294,34 +364,92 @@
 
 @push('styles')
 <style>
+    /* Mobile product cards */
+    .prod-mobile-list { display: none; }
+    .prod-m-card {
+        background: var(--color-white);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+    .prod-m-card--deleted { opacity:.65; background:#f9f9f9; }
+    .prod-m-card__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+    .prod-m-card__meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 10px;
+        background: var(--color-cream);
+        border-radius: 8px;
+    }
+    .prod-m-card__actions {
+        display: flex;
+        gap: 6px;
+    }
+    .meta-label { font-size:.7rem; color:#888; font-weight:600; text-transform:uppercase; margin-bottom:3px; }
+    .prod-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border: 2px solid var(--border-color);
+        border-radius: 50px;
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .prod-badge--ok  { background: var(--color-pastel-green); }
+    .prod-badge--off { background: var(--color-pastel-yellow); }
+    .prod-badge--del { background: #FFB5B5; }
+    .badge-deleted {
+        display: inline-block;
+        padding: 1px 6px;
+        background: #FFB5B5;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: .65rem;
+        font-weight: 700;
+        margin-left: 4px;
+    }
+    .prod-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 7px 10px;
+        border: 2px solid var(--border-color);
+        border-radius: 7px;
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 2px 2px 0 var(--color-black);
+        text-decoration: none;
+        color: var(--color-black);
+        font-family: var(--font-heading);
+    }
+    .prod-btn--blue   { background: var(--color-pastel-blue); }
+    .prod-btn--green  { background: var(--color-pastel-green); }
+    .prod-btn--yellow { background: var(--color-pastel-yellow); }
+    .prod-btn--red    { background: #FFB5B5; }
+
+    @media (max-width: 768px) {
+        /* Hide table, show cards */
+        .admin-content > div > div[style*="overflow-x"] { display: none !important; }
+        .prod-mobile-list { display: block; }
+        /* Pagination still shows */
+    }
     @media (max-width: 1024px) {
-        table {
-            font-size: 0.85rem;
-        }
-        
-        table th,
-        table td {
-            padding: 12px 8px !important;
-        }
-
-        table td > div {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 8px !important;
-        }
-
-        /* Responsive filter bar - stack on mobile */
-        form > div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-        }
-
-        form > div > div:last-child {
-            justify-content: stretch !important;
-        }
-
-        form > div > div:last-child > * {
-            flex: 1 !important;
-        }
+        table { font-size: .82rem; }
+        table th, table td { padding: 10px 6px !important; }
     }
 </style>
 @endpush

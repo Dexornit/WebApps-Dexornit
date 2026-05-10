@@ -44,7 +44,7 @@
 </div>
 
 <!-- Categories Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+<div class="cat-grid">
     @forelse($categories as $category)
         <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-brutal); position: relative;">
             <!-- Status Badge -->
@@ -127,11 +127,16 @@
 
 @push('styles')
 <style>
-    @media (max-width: 768px) {
-        div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-        }
+    .cat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
+    @media (max-width: 600px) {
+        .cat-grid { grid-template-columns: 1fr; }
+    }
+    .cat-card { font-size: clamp(0.8rem, 2.5vw, 0.95rem); }
+    .cat-card h3 { font-size: clamp(1rem, 3vw, 1.3rem) !important; }
 </style>
 @endpush
 @endsection

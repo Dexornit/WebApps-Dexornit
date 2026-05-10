@@ -60,7 +60,7 @@
     @csrf
     @method('PUT')
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+    <div class="admin-form-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
         <!-- Main Form -->
         <div>
             <!-- Product Information -->
@@ -275,7 +275,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div>
+        <div class="admin-form-sidebar">
             <!-- Status & Actions -->
             <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-brutal); position: sticky; top: 100px;">
                 <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Publish</h3>
@@ -458,14 +458,9 @@ function previewImages(event) {
 
 @push('styles')
 <style>
-    @media (max-width: 1024px) {
-        form > div {
-            grid-template-columns: 1fr !important;
-        }
-
-        .admin-content > form > div > div:last-child > div {
-            position: static !important;
-        }
+    /* Responsive handled globally by admin-form-grid + admin-form-sidebar */
+    @media (max-width: 768px) {
+        .admin-form-sidebar > div { position: static !important; }
     }
 </style>
 @endpush

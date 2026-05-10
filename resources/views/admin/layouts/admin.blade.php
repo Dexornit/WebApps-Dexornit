@@ -46,6 +46,7 @@
             background: var(--color-cream);
             color: var(--color-black);
             line-height: 1.6;
+            font-size: clamp(13px, 2vw, 16px);
         }
 
         /* Admin Layout */
@@ -240,6 +241,36 @@
             .admin-header__title { font-size: 1rem; }
         }
 
+        /* ─── Global Responsive Helpers ───────────────────── */
+        /* All tables scroll horizontally on mobile */
+        .admin-content table { min-width: 500px; }
+        .admin-content .table-wrap,
+        .admin-content [style*="overflow-x"] { overflow-x: auto !important; }
+
+        /* Form inputs full width */
+        .admin-content input,
+        .admin-content select,
+        .admin-content textarea { max-width: 100%; }
+
+        /* Fluid headings */
+        .admin-content h2 { font-size: clamp(1.1rem, 4vw, 1.8rem) !important; }
+        .admin-content h3 { font-size: clamp(1rem, 3vw, 1.3rem) !important; }
+
+        /* 2-column form grid → 1 column on mobile */
+        @media (max-width: 768px) {
+            /* Products create/edit sidebar fix */
+            .admin-form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .admin-form-sidebar {
+                position: static !important;
+            }
+            /* Filter bar full width */
+            .admin-filter-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         .admin-header__mobile-toggle {
             display: none;
             flex-direction: column;
@@ -259,7 +290,7 @@
         }
 
         .admin-content {
-            padding: 32px;
+            padding: clamp(16px, 3vw, 32px);
         }
 
         /* Mobile Responsive */
