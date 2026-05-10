@@ -233,6 +233,13 @@
             color: var(--color-black);
         }
 
+        /* Hide button text on very small screens */
+        @media (max-width: 480px) {
+            .admin-header__btn-text { display: none; }
+            .admin-header__btn { padding: 10px 12px; }
+            .admin-header__title { font-size: 1rem; }
+        }
+
         .admin-header__mobile-toggle {
             display: none;
             flex-direction: column;
@@ -465,7 +472,7 @@
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
                         </svg>
-                        View Site
+                        <span class="admin-header__btn-text">View Site</span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                         @csrf
@@ -475,7 +482,7 @@
                                 <polyline points="16 17 21 12 16 7"/>
                                 <line x1="21" y1="12" x2="9" y2="12"/>
                             </svg>
-                            Logout
+                            <span class="admin-header__btn-text">Logout</span>
                         </button>
                     </form>
                 </div>
