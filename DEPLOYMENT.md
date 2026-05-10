@@ -1,143 +1,188 @@
-# 🚀 Panduan Deploy Wanseven ke Shared Hosting
+# 🚀 Panduan Deploy Dexornit Store — RumahWeb Shared Hosting
 
-## Langkah-Langkah Deploy
+> **Last updated:** 2026-05-10  
+> **Stack:** Laravel 12 + MySQL + PHP 8.1/8.2
 
-### 1️⃣ Persiapan di Komputer Lokal
+---
 
-```bash
-# Install dependencies
-composer install
+## ⚡ Perubahan Penting (Dari Versi Sebelumnya)
 
-# Build assets (jika ada)
-npm install && npm run build
+| Bug Lama | Status | Keterangan |
+|----------|--------|------------|
+| Root `.htaccess` infinite redirect loop | ✅ Fixed | Kondisi `!-f !-d` + flag `[QSA]` ditambahkan |
+| Dua installer konflik (`install.php` + `/install` route) | ✅ Fixed | `public/install.php` dihapus, pakai Laravel route saja |
+| `public/index.php` redirect ke path yang salah | ✅ Fixed | Disederhanakan, middleware yang handle redirect |
+| `DB_CONNECTION=sqlite` di shared hosting | ✅ Fixed | Diganti ke `mysql` |
+| Middleware panggil `Artisan::call('key:generate')` tanpa APP_KEY | ✅ Fixed | Dihapus dari middleware |
+| `composer.json` require PHP ^8.3 | ✅ Fixed | Diturunkan ke ^8.1 |
+| Bootstrap cache stale | ✅ Fixed | Semua file cache dihapus |
+
+---
+
+## 📋 Prasyarat Sebelum Upload
+
+- [ ] Folder `vendor/` ada (hasil `composer install --no-dev` di lokal)
+- [ ] Folder `public/build/` ada (hasil `npm run build` di lokal)
+- [ ] Database MySQL sudah dibuat di cPanel
+
+---
+
+## 📁 File yang Diupload ke Server
+
+Upload **semua ini** ke `public_html/` (document root):
+
 ```
-
-### 2️⃣ Upload ke Server
-
-Upload semua file KECUALI:
-- ❌ `node_modules/` (tidak perlu)
-- ❌ `.git/` (tidak perlu)
-- ✅ **WAJIB upload `vendor/`** (ini yang paling penting!)
-
-**Struktur di server harus seperti ini:**
-```
-/home/wanj3194/public_html/
+public_html/
+├── .htaccess                  ← root htaccess (WAJIB)
+├── .env                       ← isi DB credentials dulu!
 ├── app/
 ├── bootstrap/
+│   ├── app.php
+│   ├── cache/                 ← upload KOSONG (jangan ada .php di dalamnya)
+│   └── providers.php
 ├── config/
 ├── database/
-├── public/
-│   ├── index.php
-│   ├── install.php
-│   └── check.php
+│   └── migrations/
+├── public/                    ← upload ISINYA, bukan foldernya!
+│   ├── .htaccess              ← public htaccess (WAJIB)
+│   ├── index.php              ← entry point Laravel (WAJIB)
+│   ├── assets/
+│   └── build/
 ├── resources/
 ├── routes/
-├── storage/
-├── vendor/          ← WAJIB ADA!
-├── .env.example
-├── .htaccess
-├── artisan
-└── composer.json
+├── storage/                   ← harus writable (chmod 755)
+└── vendor/                    ← WAJIB ADA
 ```
 
-### 3️⃣ Set Permissions
+> ❌ **JANGAN upload:** `node_modules/`, `node_modules.zip`, `.git/`, `.kiro/`
 
-Via File Manager atau SSH:
-```bash
-chmod -R 755 storage
-chmod -R 755 bootstrap/cache
+---
+
+## 🛠️ Langkah Deploy Step-by-Step
+
+### Step 1 — Buat Database di cPanel
+
+1. Login **cPanel → MySQL Databases**
+2. Buat database baru (contoh: `wanseven_db`)
+3. Buat user MySQL baru
+4. Assign user ke database dengan **ALL PRIVILEGES**
+5. Catat: hostname, nama DB, username, password
+
+### Step 2 — Edit `.env` Sebelum Upload
+
+```env
+APP_NAME="Dexornit Store"
+APP_ENV=production
+APP_KEY=base64:aJM7kVSKKMbs6HwS1cJJbYifHn+8CAyhpDc4DmGUSOo=
+APP_DEBUG=false
+APP_URL=http://wanseven.com
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=nama_database_kamu
+DB_USERNAME=user_database_kamu
+DB_PASSWORD=password_database_kamu
 ```
 
-### 4️⃣ Jalankan Installer
+> ⚠️ Ganti `nama_database_kamu`, `user_database_kamu`, `password_database_kamu` sesuai Step 1.
 
-1. Buka browser: `https://wanseven.com/check.php`
-   - Cek apakah semua requirement terpenuhi
-   - Pastikan vendor/ ada (✅)
+### Step 3 — Upload via cPanel File Manager
 
-2. Jika semua OK, buka: `https://wanseven.com/install.php`
-   - Pilih database (SQLite recommended untuk shared hosting)
-   - Isi data admin
-   - Klik Install
+1. Compress project jadi `.zip` (kecuali yang dilarang di atas)
+2. Upload ke `public_html/` via File Manager
+3. Extract di sana
 
-3. Setelah instalasi selesai, jalankan via SSH (jika ada akses):
-   ```bash
-   php artisan migrate
-   php artisan db:seed
-   ```
+### Step 4 — Set File Permissions
 
-### 5️⃣ Selesai!
+Di cPanel → File Manager, klik kanan folder → **Change Permissions:**
 
-Buka `https://wanseven.com` - website sudah bisa diakses!
+| Path | Permission |
+|------|------------|
+| `storage/` (recursive) | `755` |
+| `bootstrap/cache/` | `755` |
+| `.env` | `644` |
+
+### Step 5 — Set PHP Version di cPanel
+
+1. cPanel → **Select PHP Version**
+2. Pilih **PHP 8.1** atau **PHP 8.2**
+3. Pastikan extension berikut **aktif (centang):**
+   - `pdo_mysql`
+   - `mbstring`
+   - `openssl`
+   - `fileinfo`
+   - `xml`
+   - `bcmath`
+   - `ctype`
+   - `json`
+
+### Step 6 — Jalankan Installer
+
+Buka browser: **`http://wanseven.com/install`**
+
+Ikuti wizard 4 langkah:
+1. ✅ **Check** — verifikasi requirements
+2. 🗄️ **Database** — masukkan credentials MySQL dari Step 1
+3. 👤 **Admin** — buat akun admin
+4. 🚀 **Install** — proses migrasi & setup otomatis
+
+### Step 7 — Selesai!
+
+Setelah installer berhasil:
+- Website: `http://wanseven.com`
+- Admin login: `http://wanseven.com/login`
+- Admin panel: `http://wanseven.com/admin/dashboard`
 
 ---
 
 ## ⚠️ Troubleshooting
 
-### Error 500 - Internal Server Error
+### Lihat Error Log
 
-**Penyebab paling umum:**
-1. ❌ Folder `vendor/` tidak ada
-   - **Solusi:** Upload folder vendor/ dari lokal
-   
-2. ❌ File `.env` tidak ada
-   - **Solusi:** Jalankan installer dulu
-
-3. ❌ Permission storage/ salah
-   - **Solusi:** `chmod -R 755 storage bootstrap/cache`
-
-4. ❌ PHP version < 8.1
-   - **Solusi:** Update PHP di cPanel/Hosting Panel
-
-### Error: Too Many Redirects
-
-**Sudah diperbaiki!** File `.htaccess` sudah dikonfigurasi dengan benar.
-
-### Vendor Folder Terlalu Besar untuk Upload
-
-**Opsi 1: Upload via ZIP**
-```bash
-# Di lokal
-zip -r vendor.zip vendor/
-
-# Upload vendor.zip ke server
-# Extract via File Manager
 ```
-
-**Opsi 2: Composer via SSH** (jika ada akses)
-```bash
-ssh user@wanseven.com
-cd public_html
-composer install --no-dev --optimize-autoloader
+cPanel → Error Logs
 ```
+atau buka file: `storage/logs/laravel.log`
 
-**Opsi 3: Upload Bertahap**
-Upload folder vendor/ secara bertahap (per subfolder) via FTP.
+### Aktifkan Debug Sementara
 
----
+Edit `.env` di server:
+```env
+APP_DEBUG=true
+```
+Reload halaman → error detail akan muncul. **Matikan lagi setelah selesai debug!**
 
-## 📋 Checklist Deploy
+### Tabel Masalah Umum
 
-- [ ] Upload semua file termasuk `vendor/`
-- [ ] Set permission `storage/` dan `bootstrap/cache/` ke 755
-- [ ] Buka `/check.php` untuk verifikasi
-- [ ] Jalankan `/install.php`
-- [ ] Jalankan `php artisan migrate` (via SSH atau manual)
-- [ ] Test website di browser
-- [ ] Login sebagai admin
-- [ ] Hapus file `install.php` setelah selesai (opsional, untuk keamanan)
-
----
-
-## 🆘 Butuh Bantuan?
-
-1. Cek `/check.php` untuk diagnosis otomatis
-2. Cek error log di `storage/logs/laravel.log`
-3. Aktifkan debug mode sementara di `.env`:
-   ```
-   APP_DEBUG=true
-   ```
-   (Jangan lupa matikan lagi setelah selesai!)
+| Error | Penyebab | Solusi |
+|-------|----------|--------|
+| "Vendor folder missing" | `vendor/` tidak terupload | Upload folder `vendor/` dari lokal |
+| `SQLSTATE[HY000]` | Credentials DB salah | Cek `.env` DB_HOST/USER/PASS |
+| "Permission denied" | Permission storage salah | chmod 755 storage/ dan bootstrap/cache/ |
+| "No application encryption key" | APP_KEY kosong | Generate: `php artisan key:generate --show` di lokal, copy ke `.env` |
+| Blank white page (no error) | Error tersembunyi | Set `APP_DEBUG=true` sementara |
+| 404 on all routes | `.htaccess` tidak terupload | Pastikan kedua `.htaccess` ada di root dan di `public/` |
+| Installer redirect loop | `.installed` marker ada tapi DB kosong | Hapus `storage/app/.installed`, buka `/install` lagi |
 
 ---
 
-**Good luck! 🎉**
+## 🔐 Keamanan Post-Deploy
+
+- [ ] `APP_DEBUG=false` di `.env`
+- [ ] `APP_ENV=production` di `.env`
+- [ ] File `storage/app/.installed` sudah ada
+- [ ] Route `/install` otomatis diblock setelah terinstall
+
+---
+
+## 📌 Info RumahWeb Small Plan
+
+| Fitur | Ketersediaan |
+|-------|-------------|
+| PHP 8.1/8.2 | ✅ Tersedia (pilih di cPanel) |
+| MySQL | ✅ Tersedia (buat via cPanel) |
+| SQLite | ⚠️ Tidak disarankan |
+| SSH / Terminal | ❌ Tidak tersedia di Small plan |
+| Composer di server | ❌ Tidak tersedia → upload `vendor/` dari lokal |
+| Node.js / npm | ❌ Tidak tersedia → build `public/build/` dari lokal |

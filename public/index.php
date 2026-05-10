@@ -1,20 +1,17 @@
 <?php
 /**
- * Dexornit Store - Public Entry Point
- * Laravel 12 Application
+ * Dexornit Store — Public Entry Point
+ * Pola TMail: requirements.php di-include dulu, jika gagal → halt otomatis
  */
 
-define('LARAVEL_START', microtime(true));
-
-// ─── Safety: Check vendor ────────────────────────────────────────────────────
-if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    http_response_code(503);
-    die('<h2 style="font-family:monospace;padding:2rem;color:#c0392b">⚠ Vendor folder missing!<br><small>Upload the <code>vendor/</code> folder or run <code>composer install</code> on the server.</small></h2>');
-}
+// ─── Requirements Check (auto-halt jika ada yang missing) ───────────────────
+require 'requirements.php';
 
 // ─── Boot Laravel ────────────────────────────────────────────────────────────
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
 
 if (file_exists($maintenance = __DIR__ . '/../storage/framework/maintenance.php')) {
     require $maintenance;
