@@ -17,7 +17,7 @@
 <form method="POST" action="{{ route('admin.categories.store') }}">
     @csrf
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+    <div class="admin-form-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
         <!-- Main Form -->
         <div>
             <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 28px; box-shadow: var(--shadow-brutal);">
@@ -26,17 +26,21 @@
                 <!-- Name -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Category Name <span style="color: var(--color-coral);">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" required style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;" placeholder="e.g., Streaming">
+                    <input type="text" name="name" value="{{ old('name') }}" required
+                        style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;"
+                        placeholder="e.g., Streaming">
                     @error('name')
                         <span style="color: var(--color-coral); font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
                     @enderror
                 </div>
 
                 <!-- Icon & Color -->
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 20px;">
+                <div class="cat-icon-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Icon (Emoji)</label>
-                        <input type="text" name="icon" value="{{ old('icon') }}" maxlength="10" style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 1.5rem; text-align: center; outline: none;" placeholder="🎬">
+                        <input type="text" name="icon" value="{{ old('icon') }}" maxlength="10"
+                            style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 1.5rem; text-align: center; outline: none;"
+                            placeholder="🎬">
                         @error('icon')
                             <span style="color: var(--color-coral); font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
                         @enderror
@@ -44,8 +48,10 @@
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Color (Hex) <span style="color: var(--color-coral);">*</span></label>
                         <div style="display: flex; gap: 12px; align-items: center;">
-                            <input type="color" name="color" value="{{ old('color', '#6C63FF') }}" required style="width: 60px; height: 48px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
-                            <input type="text" id="color-text" value="{{ old('color', '#6C63FF') }}" readonly style="flex: 1; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;">
+                            <input type="color" name="color" value="{{ old('color', '#6C63FF') }}" required
+                                style="width: 56px; height: 48px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; padding: 2px; background: var(--color-cream); flex-shrink: 0;">
+                            <input type="text" id="color-text" value="{{ old('color', '#6C63FF') }}" readonly
+                                style="flex: 1; min-width: 0; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;">
                         </div>
                         @error('color')
                             <span style="color: var(--color-coral); font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
@@ -56,7 +62,9 @@
                 <!-- Order -->
                 <div style="margin-bottom: 0;">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Display Order</label>
-                    <input type="number" name="order" value="{{ old('order', 0) }}" min="0" style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;" placeholder="0">
+                    <input type="number" name="order" value="{{ old('order', 0) }}" min="0"
+                        style="width: 100%; padding: 12px 16px; background: var(--color-cream); border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; outline: none;"
+                        placeholder="0">
                     <p style="font-size: 0.8rem; color: #888; margin-top: 6px;">Lower numbers appear first. Leave 0 for automatic ordering.</p>
                     @error('order')
                         <span style="color: var(--color-coral); font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
@@ -66,14 +74,15 @@
         </div>
 
         <!-- Sidebar -->
-        <div>
+        <div class="admin-form-sidebar">
             <div style="background: var(--color-white); border: var(--border-width) solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-brutal); position: sticky; top: 100px;">
                 <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Publish</h3>
 
                 <!-- Status -->
                 <div style="margin-bottom: 24px;">
                     <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                        <input type="checkbox" name="status" value="1" {{ old('status', true) ? 'checked' : '' }} style="width: 20px; height: 20px; cursor: pointer;">
+                        <input type="checkbox" name="status" value="1" {{ old('status', true) ? 'checked' : '' }}
+                            style="width: 20px; height: 20px; cursor: pointer; flex-shrink: 0;">
                         <span style="font-weight: 600; font-size: 0.95rem;">Active (visible in product forms)</span>
                     </label>
                 </div>
@@ -93,7 +102,6 @@
 
 @push('scripts')
 <script>
-// Sync color picker with text input
 document.querySelector('input[name="color"]').addEventListener('input', function(e) {
     document.getElementById('color-text').value = e.target.value.toUpperCase();
 });
@@ -102,14 +110,13 @@ document.querySelector('input[name="color"]').addEventListener('input', function
 
 @push('styles')
 <style>
-    @media (max-width: 1024px) {
-        form > div {
-            grid-template-columns: 1fr !important;
-        }
-
-        div[style*="position: sticky"] {
-            position: static !important;
-        }
+    /* Sidebar sticky → static on mobile (global .admin-form-grid handles grid collapse) */
+    @media (max-width: 768px) {
+        .admin-form-sidebar > div { position: static !important; }
+    }
+    /* Icon/color picker row collapses on very small screens */
+    @media (max-width: 480px) {
+        .cat-icon-row { grid-template-columns: 1fr !important; }
     }
 </style>
 @endpush

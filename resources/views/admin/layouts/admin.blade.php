@@ -41,6 +41,8 @@
             box-sizing: border-box;
         }
 
+        *, *::before, *::after { box-sizing: border-box; }
+
         body {
             font-family: var(--font-body);
             background: var(--color-cream);

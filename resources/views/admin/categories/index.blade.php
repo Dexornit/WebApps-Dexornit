@@ -91,10 +91,10 @@
                     Edit
                 </a>
 
-                <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}" style="flex: 1;">
+                <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}" style="flex: 1; display: flex;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this category? This action cannot be undone if there are no products.')" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; background: #FFB5B5; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 2px 2px 0px var(--color-black); transition: all 0.2s ease;">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this category? This action cannot be undone if there are no products.')" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; background: #FFB5B5; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 2px 2px 0px var(--color-black); transition: all 0.2s ease;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>

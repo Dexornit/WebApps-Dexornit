@@ -304,22 +304,22 @@
                 </div>
                 <div class="prod-m-card__actions">
                     @if($product->trashed())
-                        <form method="POST" action="{{ route('admin.products.restore', $product->id) }}" style="flex:1;">
+                        <form method="POST" action="{{ route('admin.products.restore', $product->id) }}" style="flex:1;display:flex;">
                             @csrf
-                            <button type="submit" class="prod-btn prod-btn--green" style="width:100%;">Restore</button>
+                            <button type="submit" class="prod-btn prod-btn--green" style="flex:1;">Restore</button>
                         </form>
                     @else
-                        <a href="{{ route('admin.products.edit', $product->id) }}" class="prod-btn prod-btn--blue" style="flex:1;text-align:center;">Edit</a>
-                        <form method="POST" action="{{ route('admin.products.toggleStatus', $product->id) }}" style="flex:1;">
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="prod-btn prod-btn--blue" style="flex:1;">Edit</a>
+                        <form method="POST" action="{{ route('admin.products.toggleStatus', $product->id) }}" style="flex:1;display:flex;">
                             @csrf
-                            <button type="submit" class="prod-btn {{ $product->status ? 'prod-btn--yellow' : 'prod-btn--green' }}" style="width:100%;">
+                            <button type="submit" class="prod-btn {{ $product->status ? 'prod-btn--yellow' : 'prod-btn--green' }}" style="flex:1;">
                                 {{ $product->status ? 'Deactivate' : 'Activate' }}
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}" style="flex:1;">
+                        <form method="POST" action="{{ route('admin.products.destroy', $product->id) }}" style="flex:1;display:flex;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('Delete this product?')" class="prod-btn prod-btn--red" style="width:100%;">Delete</button>
+                            <button type="submit" onclick="return confirm('Delete this product?')" class="prod-btn prod-btn--red" style="flex:1;">Delete</button>
                         </form>
                     @endif
                 </div>
