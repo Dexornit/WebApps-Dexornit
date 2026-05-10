@@ -1,7 +1,7 @@
 <?php
 /**
  * Wanseven All-in-One Installer
- * Complete installation: Check → Setup → Migrate → Done!
+ * MySQL Only - Complete Setup
  */
 
 ini_set('display_errors', 1);
@@ -13,21 +13,19 @@ if (file_exists(__DIR__ . '/../storage/app/.installed')) {
     die('Already installed! Delete storage/app/.installed to reinstall.');
 }
 
-// Ensure storage directory exists
-if (!is_dir(__DIR__ . '/../storage/app')) {
-    @mkdir(__DIR__ . '/../storage/app', 0755, true);
-}
-if (!is_dir(__DIR__ . '/../storage/framework/cache')) {
-    @mkdir(__DIR__ . '/../storage/framework/cache', 0755, true);
-}
-if (!is_dir(__DIR__ . '/../storage/framework/sessions')) {
-    @mkdir(__DIR__ . '/../storage/framework/sessions', 0755, true);
-}
-if (!is_dir(__DIR__ . '/../storage/framework/views')) {
-    @mkdir(__DIR__ . '/../storage/framework/views', 0755, true);
-}
-if (!is_dir(__DIR__ . '/../storage/logs')) {
-    @mkdir(__DIR__ . '/../storage/logs', 0755, true);
+// Ensure storage directories exist
+$dirs = [
+    __DIR__ . '/../storage/app',
+    __DIR__ . '/../storage/framework/cache',
+    __DIR__ . '/../storage/framework/sessions',
+    __DIR__ . '/../storage/framework/views',
+    __DIR__ . '/../storage/logs',
+    __DIR__ . '/../bootstrap/cache'
+];
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
 }
 
 session_start();
@@ -37,14 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $step = $_POST['step'] ?? 1;
     
     if ($step == 1) {
-        // Step 1: Check requirements (auto-pass, just show info)
         header('Location: install.php?step=2');
         exit;
     }
     
     if ($step == 2) {
-        // Step 2: Save database config
-        $_SESSION['db_type'] = $_POST['db_type'] ?? 'sqlite';
         $_SESSION['db_host'] = $_POST['db_host'] ?? 'localhost';
         $_SESSION['db_port'] = $_POST['db_port'] ?? '3306';
         $_SESSION['db_name'] = $_POST['db_name'] ?? '';
@@ -55,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if ($step == 3) {
-        // Step 3: Save admin config
         $_SESSION['admin_name'] = $_POST['admin_name'] ?? '';
         $_SESSION['admin_email'] = $_POST['admin_email'] ?? '';
         $_SESSION['admin_password'] = $_POST['admin_password'] ?? '';
@@ -67,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if ($step == 4) {
-        // Step 4: DO INSTALLATION + MIGRATION
         $errors = [];
         $logs = [];
         
@@ -78,101 +71,150 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('.env.example not found!');
             }
             
-            if (!copy(__DIR__ . '/../.env.example', __DIR__ . '/../.env')) {
-                throw new Exception('Failed to create .env file.');
-            }
-            $logs[] = "✓ .env created";
-            
-            // 2. Update .env
-            $logs[] = "→ Configuring environment...";
-            $env = file_get_contents(__DIR__ . '/../.env');
-            $env = preg_replace('/^APP_NAME=.*/m', 'APP_NAME="' . $_SESSION['app_name'] . '"', $env);
-            $env = preg_replace('/^APP_URL=.*/m', 'APP_URL=' . $_SESSION['app_url'], $env);
-            $env = preg_replace('/^APP_KEY=.*/m', 'APP_KEY=base64:' . base64_encode(random_bytes(32)), $env);
-            $env = preg_replace('/^APP_ENV=.*/m', 'APP_ENV=production', $env);
-            $env = preg_replace('/^APP_DEBUG=.*/m', 'APP_DEBUG=false', $env);
-            
-            if ($_SESSION['db_type'] === 'sqlite') {
-                // SQLite: Set connection and comment out MySQL settings
-                $env = preg_replace('/^DB_CONNECTION=.*/m', 'DB_CONNECTION=sqlite', $env);
-                $env = preg_replace('/^DB_HOST=.*/m', '# DB_HOST=127.0.0.1', $env);
-                $env = preg_replace('/^DB_PORT=.*/m', '# DB_PORT=3306', $env);
-                $env = preg_replace('/^DB_DATABASE=.*/m', '# DB_DATABASE=laravel', $env);
-                $env = preg_replace('/^DB_USERNAME=.*/m', '# DB_USERNAME=root', $env);
-                $env = preg_replace('/^DB_PASSWORD=.*/m', '# DB_PASSWORD=', $env);
-                
-                // Create SQLite database file
-                $dbPath = __DIR__ . '/../database/database.sqlite';
-                if (!file_exists($dbPath)) {
-                    touch($dbPath);
-                    chmod($dbPath, 0644);
-                }
-                $logs[] = "✓ SQLite database created";
-            } else {
-                // MySQL: Uncomment and set values
-                $env = preg_replace('/^[#\s]*DB_CONNECTION=.*/m', 'DB_CONNECTION=mysql', $env);
-                $env = preg_replace('/^[#\s]*DB_HOST=.*/m', 'DB_HOST=' . $_SESSION['db_host'], $env);
-                $env = preg_replace('/^[#\s]*DB_PORT=.*/m', 'DB_PORT=' . $_SESSION['db_port'], $env);
-                $env = preg_replace('/^[#\s]*DB_DATABASE=.*/m', 'DB_DATABASE=' . $_SESSION['db_name'], $env);
-                $env = preg_replace('/^[#\s]*DB_USERNAME=.*/m', 'DB_USERNAME=' . $_SESSION['db_user'], $env);
-                $env = preg_replace('/^[#\s]*DB_PASSWORD=.*/m', 'DB_PASSWORD=' . $_SESSION['db_pass'], $env);
-                $logs[] = "✓ MySQL configured";
-            }
+            $env = "APP_NAME=\"" . $_SESSION['app_name'] . "\"
+APP_ENV=production
+APP_KEY=base64:" . base64_encode(random_bytes(32)) . "
+APP_DEBUG=false
+APP_URL=" . $_SESSION['app_url'] . "
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=" . $_SESSION['db_host'] . "
+DB_PORT=" . $_SESSION['db_port'] . "
+DB_DATABASE=" . $_SESSION['db_name'] . "
+DB_USERNAME=" . $_SESSION['db_user'] . "
+DB_PASSWORD=" . $_SESSION['db_pass'] . "
+
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+
+CACHE_STORE=file
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=log
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS=\"hello@example.com\"
+MAIL_FROM_NAME=\"\${APP_NAME}\"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+VITE_APP_NAME=\"\${APP_NAME}\"
+";
             
             file_put_contents(__DIR__ . '/../.env', $env);
-            $logs[] = "✓ Environment configured";
+            $logs[] = "✓ .env created";
+            
+            // 2. Clear bootstrap cache
+            $logs[] = "→ Clearing bootstrap cache...";
+            $cacheFiles = [
+                __DIR__ . '/../bootstrap/cache/config.php',
+                __DIR__ . '/../bootstrap/cache/routes-v7.php',
+                __DIR__ . '/../bootstrap/cache/services.php',
+                __DIR__ . '/../bootstrap/cache/packages.php'
+            ];
+            foreach ($cacheFiles as $file) {
+                if (file_exists($file)) {
+                    @unlink($file);
+                }
+            }
+            $logs[] = "✓ Bootstrap cache cleared";
             
             // 3. Run migrations using Laravel
             $logs[] = "→ Running database migrations...";
             
-            if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-                try {
-                    // Boot Laravel
-                    require __DIR__ . '/../vendor/autoload.php';
-                    $app = require_once __DIR__ . '/../bootstrap/app.php';
-                    
-                    // Run migrations
-                    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-                    $kernel->bootstrap();
-                    
-                    // Test database connection first
-                    try {
-                        \Illuminate\Support\Facades\DB::connection()->getPdo();
-                        $logs[] = "✓ Database connection successful";
-                    } catch (Exception $dbError) {
-                        throw new Exception("Database connection failed: " . $dbError->getMessage());
-                    }
-                    
-                    // Migrate
-                    $migrationOutput = $kernel->call('migrate', ['--force' => true]);
-                    $logs[] = "✓ Migrations completed";
-                    
-                    // Create admin user
-                    $logs[] = "→ Creating admin user...";
-                    $user = new \App\Models\User();
-                    $user->name = $_SESSION['admin_name'];
-                    $user->email = $_SESSION['admin_email'];
-                    $user->password = $_SESSION['admin_password_hash'];
-                    $user->save();
-                    $logs[] = "✓ Admin user created: " . $_SESSION['admin_email'];
-                    
-                    // Seed categories (optional)
-                    try {
-                        $kernel->call('db:seed', ['--force' => true, '--class' => 'Database\\Seeders\\DatabaseSeeder']);
-                        $logs[] = "✓ Sample data seeded";
-                    } catch (Exception $e) {
-                        $logs[] = "⚠ Seeding skipped (optional)";
-                    }
-                    
-                } catch (Exception $laravelError) {
-                    throw new Exception("Laravel error: " . $laravelError->getMessage());
-                }
-                
-            } else {
+            if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
                 throw new Exception('vendor/ folder not found! Upload it first.');
             }
             
-            // 4. Create installation marker
+            require __DIR__ . '/../vendor/autoload.php';
+            $app = require_once __DIR__ . '/../bootstrap/app.php';
+            
+            $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+            $kernel->bootstrap();
+            
+            // Test database connection
+            try {
+                \Illuminate\Support\Facades\DB::connection()->getPdo();
+                $logs[] = "✓ Database connection successful";
+            } catch (Exception $dbError) {
+                throw new Exception("Database connection failed: " . $dbError->getMessage());
+            }
+            
+            // Migrate
+            $kernel->call('migrate', ['--force' => true]);
+            $logs[] = "✓ Migrations completed";
+            
+            // Create admin user
+            $logs[] = "→ Creating admin user...";
+            $existingUser = \App\Models\User::where('email', $_SESSION['admin_email'])->first();
+            
+            if ($existingUser) {
+                $existingUser->name = $_SESSION['admin_name'];
+                $existingUser->password = $_SESSION['admin_password_hash'];
+                $existingUser->save();
+                $logs[] = "✓ Admin user updated: " . $_SESSION['admin_email'];
+            } else {
+                $user = new \App\Models\User();
+                $user->name = $_SESSION['admin_name'];
+                $user->email = $_SESSION['admin_email'];
+                $user->password = $_SESSION['admin_password_hash'];
+                $user->save();
+                $logs[] = "✓ Admin user created: " . $_SESSION['admin_email'];
+            }
+            
+            // Seed data (optional)
+            try {
+                $kernel->call('db:seed', ['--force' => true]);
+                $logs[] = "✓ Sample data seeded";
+            } catch (Exception $e) {
+                $logs[] = "⚠ Seeding skipped (optional)";
+            }
+            
+            // Clear all caches
+            $logs[] = "→ Clearing application caches...";
+            try {
+                $kernel->call('config:clear');
+                $kernel->call('cache:clear');
+                $kernel->call('route:clear');
+                $kernel->call('view:clear');
+                $logs[] = "✓ All caches cleared";
+            } catch (Exception $e) {
+                $logs[] = "⚠ Cache clearing skipped";
+            }
+            
+            // Create installation marker
             $logs[] = "→ Finalizing installation...";
             $marker = [
                 'installed_at' => date('Y-m-d H:i:s'),
@@ -181,9 +223,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'version' => '1.0.0'
             ];
             file_put_contents(__DIR__ . '/../storage/app/.installed', json_encode($marker, JSON_PRETTY_PRINT));
-            $logs[] = "✓ Installation marker created";
+            $logs[] = "✓ Installation complete!";
             
-            // Success!
             $_SESSION['install_success'] = true;
             $_SESSION['install_logs'] = $logs;
             session_write_close();
@@ -213,7 +254,7 @@ $step = $_GET['step'] ?? 1;
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full">
             <h1 class="text-3xl font-bold text-center mb-2">Wanseven</h1>
-            <p class="text-center text-gray-600 mb-8">All-in-One Installer</p>
+            <p class="text-center text-gray-600 mb-8">Installation Wizard</p>
             
             <!-- Progress Bar -->
             <div class="mb-8">
@@ -270,39 +311,23 @@ $step = $_GET['step'] ?? 1;
             
             <?php elseif ($step == 2): ?>
                 <!-- Step 2: Database Setup -->
-                <h2 class="text-2xl font-semibold mb-4">🗄️ Database Configuration</h2>
+                <h2 class="text-2xl font-semibold mb-4">🗄️ MySQL Database</h2>
                 
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
-                    <p class="text-sm text-blue-800"><strong>💡 Recommendation:</strong> Choose SQLite for easiest setup - no database configuration needed!</p>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <p class="text-sm text-yellow-800"><strong>⚠️ Important:</strong> Create your MySQL database first via cPanel/phpMyAdmin before continuing!</p>
                 </div>
                 
                 <form method="POST">
                     <input type="hidden" name="step" value="2">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Database Type</label>
-                        <select name="db_type" id="dbType" onchange="toggleDb()" class="w-full px-3 py-2 border rounded">
-                            <option value="sqlite">SQLite (Recommended - No setup needed)</option>
-                            <option value="mysql">MySQL (Requires existing database)</option>
-                        </select>
-                    </div>
-                    <div id="mysqlFields" style="display:none" class="space-y-2 mb-4">
-                        <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800 mb-3">
-                            ⚠️ Make sure you have created the MySQL database first!
-                        </div>
-                        <input type="text" name="db_host" placeholder="Host" value="localhost" class="w-full px-3 py-2 border rounded">
-                        <input type="text" name="db_port" placeholder="Port" value="3306" class="w-full px-3 py-2 border rounded">
-                        <input type="text" name="db_name" placeholder="Database Name" class="w-full px-3 py-2 border rounded">
-                        <input type="text" name="db_user" placeholder="Username" class="w-full px-3 py-2 border rounded">
-                        <input type="password" name="db_pass" placeholder="Password" class="w-full px-3 py-2 border rounded">
+                    <div class="space-y-3 mb-4">
+                        <input type="text" name="db_host" placeholder="Database Host" value="localhost" required class="w-full px-3 py-2 border rounded">
+                        <input type="text" name="db_port" placeholder="Database Port" value="3306" required class="w-full px-3 py-2 border rounded">
+                        <input type="text" name="db_name" placeholder="Database Name" required class="w-full px-3 py-2 border rounded">
+                        <input type="text" name="db_user" placeholder="Database Username" required class="w-full px-3 py-2 border rounded">
+                        <input type="password" name="db_pass" placeholder="Database Password" class="w-full px-3 py-2 border rounded">
                     </div>
                     <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">Continue to Admin Setup</button>
                 </form>
-                <script>
-                    function toggleDb() {
-                        document.getElementById('mysqlFields').style.display = 
-                            document.getElementById('dbType').value === 'mysql' ? 'block' : 'none';
-                    }
-                </script>
             
             <?php elseif ($step == 3): ?>
                 <!-- Step 3: Admin Setup -->
@@ -324,7 +349,6 @@ $step = $_GET['step'] ?? 1;
                 <h2 class="text-2xl font-semibold mb-4">⚙️ Installing...</h2>
                 
                 <?php if (isset($_SESSION['install_errors'])): ?>
-                    <!-- Show Errors -->
                     <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
                         <p class="font-bold text-red-800">❌ Installation Failed</p>
                         <?php foreach ($_SESSION['install_errors'] as $error): ?>
@@ -346,11 +370,9 @@ $step = $_GET['step'] ?? 1;
                     unset($_SESSION['install_errors']);
                     unset($_SESSION['install_logs']);
                     ?>
-                    
                 <?php else: ?>
-                    <!-- Auto-submit to start installation -->
                     <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-4">
-                        <p class="text-blue-800">⏳ Please wait while we set up your application...</p>
+                        <p class="text-blue-800">⏳ Setting up your application...</p>
                         <p class="text-sm text-blue-600 mt-2">This may take 1-2 minutes.</p>
                     </div>
                     
@@ -392,13 +414,10 @@ $step = $_GET['step'] ?? 1;
                         Open Website →
                     </a>
                     
-                    <p class="text-xs text-gray-500 mt-4">You can delete install.php for security after this.</p>
+                    <p class="text-xs text-gray-500 mt-4">You can delete install.php for security.</p>
                 </div>
                 
-                <?php
-                // Clear session
-                session_destroy();
-                ?>
+                <?php session_destroy(); ?>
             <?php endif; ?>
         </div>
     </div>
