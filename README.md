@@ -44,7 +44,21 @@ Visit: `https://yourdomain.com/install.php` and follow the 3-step wizard:
 - Create admin account
 - Complete installation
 
-**Step 5: Done!**
+**Step 5: Run Migrations**
+After installation, you have 2 options:
+
+**Option A: Via Web (Easy)**
+- Visit: `https://yourdomain.com/migrate.php`
+- Click "Run Migrations Now"
+- Wait for completion
+
+**Option B: Via SSH (Recommended)**
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+**Step 6: Done!**
 Your website is ready at `https://yourdomain.com`
 
 📖 **Need help?** See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed guide and troubleshooting.

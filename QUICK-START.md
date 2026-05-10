@@ -49,7 +49,21 @@ https://wanseven.com/install.php
 - Isi data admin
 - Klik Install
 
-### 5. Selesai! 🎉
+### 5. Jalankan Migrasi
+
+**Cara 1: Via Web (Mudah)**
+```
+https://wanseven.com/migrate.php
+```
+Klik "Run Migrations Now" dan tunggu selesai.
+
+**Cara 2: Via SSH (Recommended)**
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+### 6. Selesai! 🎉
 ```
 https://wanseven.com
 ```

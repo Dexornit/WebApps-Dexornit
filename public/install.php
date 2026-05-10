@@ -198,18 +198,26 @@ $step = $_GET['step'] ?? 1;
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-left">
                         <h3 class="font-bold text-yellow-800 mb-2">⚠️ Langkah Selanjutnya:</h3>
                         <ol class="text-sm text-yellow-700 space-y-2 list-decimal list-inside">
-                            <li><strong>Upload folder vendor/</strong> dari komputer lokal ke server, ATAU</li>
-                            <li><strong>Jalankan via SSH:</strong> <code class="bg-yellow-100 px-2 py-1 rounded">composer install</code></li>
-                            <li><strong>Jalankan migrasi:</strong> <code class="bg-yellow-100 px-2 py-1 rounded">php artisan migrate</code></li>
-                            <li><strong>Buat admin user:</strong> <code class="bg-yellow-100 px-2 py-1 rounded">php artisan db:seed</code></li>
+                            <li><strong>Upload folder vendor/</strong> dari komputer lokal ke server (jika belum)</li>
+                            <li><strong>Jalankan migrasi database</strong> (pilih salah satu cara di bawah)</li>
                         </ol>
                     </div>
                     
-                    <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-6 text-left text-sm">
-                        <p class="text-blue-800"><strong>💡 Tips:</strong> Jika tidak ada akses SSH, upload folder <code>vendor/</code> menggunakan FTP/File Manager. Folder ini berisi semua library Laravel yang dibutuhkan.</p>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-6 text-left">
+                        <h3 class="font-bold text-blue-800 mb-2">🔧 Cara 1: Via Web (Mudah)</h3>
+                        <p class="text-sm text-blue-700 mb-3">Klik tombol di bawah untuk menjalankan migrasi via browser:</p>
+                        <a href="/migrate.php" class="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">Jalankan Migrasi</a>
                     </div>
                     
-                    <a href="/" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold">Buka Website</a>
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded mb-6 text-left text-sm">
+                        <h3 class="font-bold text-gray-800 mb-2">🔧 Cara 2: Via SSH (Recommended)</h3>
+                        <p class="text-gray-600 mb-2">Jika punya akses SSH, jalankan:</p>
+                        <code class="block bg-gray-900 text-green-400 px-3 py-2 rounded">php artisan migrate && php artisan db:seed</code>
+                    </div>
+                    
+                    <div class="text-sm text-gray-500">
+                        <p>Setelah migrasi selesai, website siap digunakan!</p>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>

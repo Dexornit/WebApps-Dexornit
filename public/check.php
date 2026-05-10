@@ -67,6 +67,14 @@
             'message' => $installed ? '✅ Installed' : '❌ Not installed yet'
         ];
         
+        // Check migration marker
+        $migrated = file_exists(__DIR__ . '/../storage/app/.migrated');
+        $checks[] = [
+            'name' => 'Database Migrated',
+            'status' => $migrated,
+            'message' => $migrated ? '✅ Migrated' : '❌ Not migrated yet'
+        ];
+        
         // Check database file (if SQLite)
         if ($envExists) {
             $env = file_get_contents(__DIR__ . '/../.env');
@@ -105,6 +113,10 @@
             
             if (!$installed) {
                 echo "<a href='/install.php' class='inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mr-2'>Jalankan Installer</a>";
+            }
+            
+            if ($installed && !$migrated && $vendorExists) {
+                echo "<a href='/migrate.php' class='inline-block bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 mr-2'>Jalankan Migrasi</a>";
             }
             
             if (!$vendorExists) {

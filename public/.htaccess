@@ -22,6 +22,7 @@
     RewriteCond %{REQUEST_URI} !^/install\.php$
     RewriteCond %{REQUEST_URI} !^/check\.php$
     RewriteCond %{REQUEST_URI} !^/composer-setup\.php$
+    RewriteCond %{REQUEST_URI} !^/migrate\.php$
     
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
