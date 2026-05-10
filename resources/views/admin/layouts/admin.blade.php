@@ -420,6 +420,7 @@
         .toast--error   .toast__bar  { background: #dc2626; }
         .toast--info    .toast__icon { background: #dbeafe; color: #2563eb; }
         .toast--info    .toast__bar  { background: #2563eb; }
+    </style>
 
     @stack('styles')
 </head>

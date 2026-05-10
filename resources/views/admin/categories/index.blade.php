@@ -129,14 +129,16 @@
 <style>
     .cat-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 20px;
     }
-    @media (max-width: 600px) {
+    /* Always at least 2 cols on wide screens */
+    @media (min-width: 768px) {
+        .cat-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    }
+    @media (max-width: 480px) {
         .cat-grid { grid-template-columns: 1fr; }
     }
-    .cat-card { font-size: clamp(0.8rem, 2.5vw, 0.95rem); }
-    .cat-card h3 { font-size: clamp(1rem, 3vw, 1.3rem) !important; }
 </style>
 @endpush
 @endsection
