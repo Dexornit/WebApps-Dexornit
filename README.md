@@ -35,31 +35,20 @@ Upload ALL files including the `vendor/` folder to your hosting.
 
 ⚠️ **IMPORTANT:** Make sure `vendor/` folder is uploaded! This is the most common cause of errors.
 
-**Step 3: Check Status**
-Visit: `https://yourdomain.com/check.php` to verify all requirements are met.
+**Step 3: Run Installer**
+Visit: `https://yourdomain.com/install.php`
 
-**Step 4: Run Installer**
-Visit: `https://yourdomain.com/install.php` and follow the 3-step wizard:
-- Configure database (SQLite recommended for shared hosting)
-- Create admin account
-- Complete installation
+The installer will guide you through 5 simple steps:
+1. **Requirements Check** - Verify system requirements
+2. **Database Setup** - Configure database (SQLite or MySQL)
+3. **Admin Account** - Create your admin user
+4. **Installation** - Automatic setup and migration
+5. **Done!** - Your website is ready
 
-**Step 5: Run Migrations**
-After installation, you have 2 options:
-
-**Option A: Via Web (Easy)**
-- Visit: `https://yourdomain.com/migrate.php`
-- Click "Run Migrations Now"
-- Wait for completion
-
-**Option B: Via SSH (Recommended)**
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-**Step 6: Done!**
+**Step 4: Done!**
 Your website is ready at `https://yourdomain.com`
+
+Login with the admin credentials you created during installation.
 
 📖 **Need help?** See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed guide and troubleshooting.
 

@@ -18,11 +18,8 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # EXCLUDE installer and helper files from Laravel routing
+    # EXCLUDE installer from Laravel routing
     RewriteCond %{REQUEST_URI} !^/install\.php$
-    RewriteCond %{REQUEST_URI} !^/check\.php$
-    RewriteCond %{REQUEST_URI} !^/composer-setup\.php$
-    RewriteCond %{REQUEST_URI} !^/migrate\.php$
     
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d

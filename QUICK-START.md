@@ -35,35 +35,19 @@ npm install && npm run build
 ### 2. Upload ke Server
 Upload semua file (termasuk `vendor/`) ke folder `public_html/`
 
-### 3. Buka Browser
-```
-https://wanseven.com/check.php
-```
-Pastikan semua ✅ (terutama vendor/)
-
-### 4. Jalankan Installer
+### 3. Jalankan Installer
 ```
 https://wanseven.com/install.php
 ```
-- Pilih SQLite (paling mudah)
-- Isi data admin
-- Klik Install
 
-### 5. Jalankan Migrasi
+Installer akan memandu kamu melalui 5 langkah:
+1. ✅ Cek Requirements
+2. 🗄️ Setup Database (pilih SQLite - paling mudah)
+3. 👤 Buat Admin Account
+4. ⚙️ Instalasi Otomatis (termasuk migrasi!)
+5. 🎉 Selesai!
 
-**Cara 1: Via Web (Mudah)**
-```
-https://wanseven.com/migrate.php
-```
-Klik "Run Migrations Now" dan tunggu selesai.
-
-**Cara 2: Via SSH (Recommended)**
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 6. Selesai! 🎉
+### 4. Selesai! 🎉
 ```
 https://wanseven.com
 ```
@@ -73,10 +57,7 @@ https://wanseven.com
 ## ❌ Kalau Error 500?
 
 ### Cek 1: Vendor Ada?
-```
-https://wanseven.com/check.php
-```
-Kalau vendor ❌, upload folder vendor/ dari lokal!
+Pastikan folder `vendor/` sudah di-upload ke server!
 
 ### Cek 2: Permission
 Via File Manager atau SSH:
@@ -85,8 +66,8 @@ chmod -R 755 storage
 chmod -R 755 bootstrap/cache
 ```
 
-### Cek 3: .env Ada?
-Jalankan installer dulu: `/install.php`
+### Cek 3: Jalankan Installer
+Buka `/install.php` dan ikuti langkah-langkahnya.
 
 ---
 
@@ -105,19 +86,16 @@ zip -r vendor.zip vendor/
 # Extract via File Manager
 ```
 
-**Opsi 3: Auto-Install** (Bisa timeout!)
-```
-https://wanseven.com/composer-setup.php
-```
-⚠️ Hanya untuk server yang cepat!
+**Opsi 3: Auto-Install** (Tidak tersedia - exec() disabled di shared hosting)
+Gunakan opsi 1 atau 2 saja.
 
 ---
 
 ## 🆘 Masih Error?
 
-1. Buka `/check.php` - lihat apa yang ❌
-2. Baca `DEPLOYMENT.md` untuk troubleshooting lengkap
-3. Pastikan PHP >= 8.1
+1. Pastikan folder `vendor/` sudah di-upload
+2. Pastikan permission `storage/` dan `bootstrap/cache/` = 755
+3. Baca `DEPLOYMENT.md` untuk troubleshooting lengkap
 
 ---
 
