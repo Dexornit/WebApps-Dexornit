@@ -19,7 +19,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
+# /vendor  <- intentionally tracked for shared hosting deployment (no composer access on server)
 _ide_helper.php
 Homestead.json
 Homestead.yaml
