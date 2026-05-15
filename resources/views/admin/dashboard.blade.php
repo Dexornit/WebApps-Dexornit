@@ -17,17 +17,37 @@
 <div class="dash-stats">
     @php
         $cards = [
-            ['label' => 'Total Products',    'value' => $stats['total_products'],    'color' => 'var(--color-pastel-blue)',   'emoji' => '📦'],
-            ['label' => 'Active Products',   'value' => $stats['active_products'],   'color' => 'var(--color-pastel-green)',  'emoji' => '✅'],
-            ['label' => 'Inactive Products', 'value' => $stats['inactive_products'], 'color' => 'var(--color-pastel-yellow)', 'emoji' => '⏸️'],
-            ['label' => 'Deleted Products',  'value' => $stats['deleted_products'],  'color' => '#FFB5B5',                    'emoji' => '🗑️'],
+            [
+                'label' => 'Total Products',
+                'value' => $stats['total_products'],
+                'color' => 'var(--color-pastel-blue)',
+                'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
+            ],
+            [
+                'label' => 'Active Products',
+                'value' => $stats['active_products'],
+                'color' => 'var(--color-pastel-green)',
+                'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            ],
+            [
+                'label' => 'Inactive Products',
+                'value' => $stats['inactive_products'],
+                'color' => 'var(--color-pastel-yellow)',
+                'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>'
+            ],
+            [
+                'label' => 'Deleted Products',
+                'value' => $stats['deleted_products'],
+                'color' => '#FFB5B5',
+                'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+            ],
         ];
     @endphp
     @foreach($cards as $card)
     <div class="stat-card">
         <div class="stat-card__bar" style="background: {{ $card['color'] }};"></div>
         <div class="stat-card__head">
-            <div class="stat-card__icon" style="background: {{ $card['color'] }};">{{ $card['emoji'] }}</div>
+            <div class="stat-card__icon" style="background: {{ $card['color'] }};">{!! $card['icon'] !!}</div>
         </div>
         <div class="stat-card__value">{{ $card['value'] }}</div>
         <div class="stat-card__label">{{ $card['label'] }}</div>

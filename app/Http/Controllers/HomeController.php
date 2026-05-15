@@ -21,6 +21,11 @@ class HomeController extends Controller
         // Get active categories for filter buttons
         $categories = \App\Models\Category::active()->ordered()->get();
 
+        // Get active social media links
+        $socialMedia = \App\Models\SocialMedia::where('is_active', true)
+            ->orderBy('order')
+            ->get();
+
         // Prepare products data for JavaScript
         $productsData = $products->map(function ($product) {
             $minPrice = null;
@@ -41,7 +46,7 @@ class HomeController extends Controller
             ];
         });
 
-        return view('home', compact('productsData', 'categories'));
+        return view('home', compact('productsData', 'categories', 'socialMedia'));
     }
 
     /**

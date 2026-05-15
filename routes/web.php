@@ -28,6 +28,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
     Route::post('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     
+    // Social Media
+    Route::resource('social-media', \App\Http\Controllers\Admin\SocialMediaController::class);
+    
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

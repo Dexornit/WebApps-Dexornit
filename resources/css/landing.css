@@ -1867,6 +1867,10 @@ input, textarea {
     .product-card__emoji {
         font-size: 2.2rem !important;
         margin-bottom: 8px !important;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
 
     .product-card__category {
