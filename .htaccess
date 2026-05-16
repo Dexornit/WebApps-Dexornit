@@ -1,14 +1,1 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-
-    # If request is already inside /public, skip
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-
-    # Rewrite everything else to /public
-    RewriteRule ^(.*)$ public/$1 [L,QSA]
-</IfModule>
-
-# Fallback if mod_rewrite is disabled
-DirectoryIndex public/index.php index.php
+Options -Indexes

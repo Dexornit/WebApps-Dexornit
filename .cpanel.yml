@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    # WebApps deploy ke public_html/wanseven.com/ (bukan root)
+    # public_html/ hanya berisi 2 operator file (index.php + .htaccess) yang dibuat manual sekali
+    # mail.wanseven.com/ di public_html/ tidak akan tersentuh sama sekali
+    - export DEPLOYPATH=/home/$USER/public_html/wanseven.com
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -Rp . $DEPLOYPATH
