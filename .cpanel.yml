@@ -1,9 +1,7 @@
 ---
 deployment:
   tasks:
-    # WebApps deploy ke public_html/wanseven.com/ (bukan root)
-    # public_html/ hanya berisi 2 operator file (index.php + .htaccess) yang dibuat manual sekali
-    # mail.wanseven.com/ di public_html/ tidak akan tersentuh sama sekali
-    - export DEPLOYPATH=/home/$USER/public_html/wanseven.com
-    - /bin/mkdir -p $DEPLOYPATH
+    # Deploy langsung ke public_html/ (Opsi A - simple & reliable)
+    # mail.wanseven.com/ folder tidak terpengaruh karena tidak ada di repo ini
+    - export DEPLOYPATH=/home/$USER/public_html
     - /bin/cp -Rp . $DEPLOYPATH

@@ -5,8 +5,15 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Early installer check & .env redirect sudah ditangani oleh
-// operator file di public_html/index.php — tidak perlu duplikasi di sini.
+// Jika .env belum ada (belum diinstall), redirect ke setup wizard
+// agar tidak crash dengan 500 error saat boot Laravel tanpa konfigurasi
+if (!file_exists(__DIR__ . '/../.env')) {
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
+    if (!str_contains($uri, 'setup.php') && !str_contains($uri, 'requirements.php')) {
+        header('Location: /setup.php');
+        exit;
+    }
+}
 
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;

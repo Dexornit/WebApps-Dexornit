@@ -1,1 +1,15 @@
-Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Jika request sudah ke /public, skip
+    RewriteCond %{REQUEST_URI} !^/public/
+
+    # Jangan redirect jika sudah file/folder nyata
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # Semua request → public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
+
+DirectoryIndex public/index.php index.php
