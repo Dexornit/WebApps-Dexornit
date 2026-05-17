@@ -6,24 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        Schema::dropIfExists('social_media');
         Schema::create('social_media', function (Blueprint $table) {
             $table->id();
-            $table->string('icon'); // Font Awesome icon class or emoji
-            $table->string('link');
-            $table->integer('order')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->string('platform')->unique(); // whatsapp, instagram, dll
+            $table->string('url')->nullable();    // link ke profil/nomor
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('social_media');

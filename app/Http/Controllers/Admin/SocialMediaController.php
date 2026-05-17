@@ -8,62 +8,64 @@ use Illuminate\Http\Request;
 
 class SocialMediaController extends Controller
 {
+    /**
+     * Halaman utama social media management.
+     * Tampilkan semua platform preset; yang belum ada di DB dibuat otomatis (inactive, url null).
+     */
     public function index()
     {
-        $socialMedia = SocialMedia::orderBy('order')->get();
-        return view('admin.social-media.index', compact('socialMedia'));
+        $platforms = SocialMedia::platforms();
+
+        // Seed platform yang belum ada ke DB agar bisa ditampilkan
+        foreach (array_keys($platforms) as $key) {
+            SocialMedia::firstOrCreate(['platform' => $key], ['url' => null, 'is_active' => false]);
+        }
+
+        $socialMedia = SocialMedia::whereIn('platform', array_keys($platforms))->get()->keyBy('platform');
+
+        return view('admin.social-media.index', compact('socialMedia', 'platforms'));
     }
 
-    public function create()
+    /**
+     * Simpan semua perubahan (satu form besar untuk semua platform).
+     */
+    public function updateAll(Request $request)
     {
-        return view('admin.social-media.create');
-    }
+        $platforms = SocialMedia::platforms();
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'icon' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'order' => 'nullable|integer',
-            'is_active' => 'boolean',
-        ]);
+        foreach (array_keys($platforms) as $key) {
+            $url      = $request->input("url.{$key}");
+            $isActive = $request->boolean("active.{$key}");
 
-        $validated['is_active'] = $request->has('is_active');
-        $validated['order'] = $validated['order'] ?? SocialMedia::max('order') + 1;
+            // Jika aktif tapi URL kosong, paksa non-aktif
+            if ($isActive && empty($url)) {
+                $isActive = false;
+            }
 
-        SocialMedia::create($validated);
+            SocialMedia::updateOrCreate(
+                ['platform' => $key],
+                ['url' => $url ?: null, 'is_active' => $isActive]
+            );
+        }
 
         return redirect()->route('admin.social-media.index')
-            ->with('success', 'Social media berhasil ditambahkan!');
+            ->with('success', 'Social media berhasil disimpan!');
     }
 
-    public function edit(SocialMedia $socialMedia)
+    /**
+     * Toggle aktif/non-aktif satu platform via AJAX.
+     */
+    public function toggle(Request $request, string $platform)
     {
-        return view('admin.social-media.edit', compact('socialMedia'));
-    }
+        $social = SocialMedia::where('platform', $platform)->firstOrFail();
 
-    public function update(Request $request, SocialMedia $socialMedia)
-    {
-        $validated = $request->validate([
-            'icon' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'order' => 'nullable|integer',
-            'is_active' => 'boolean',
-        ]);
+        // Tidak bisa aktifkan jika URL belum diisi
+        if (!$social->url && !$social->is_active) {
+            return response()->json(['success' => false, 'message' => 'Isi URL terlebih dahulu.'], 422);
+        }
 
-        $validated['is_active'] = $request->has('is_active');
+        $social->update(['is_active' => !$social->is_active]);
 
-        $socialMedia->update($validated);
-
-        return redirect()->route('admin.social-media.index')
-            ->with('success', 'Social media berhasil diupdate!');
-    }
-
-    public function destroy(SocialMedia $socialMedia)
-    {
-        $socialMedia->delete();
-
-        return redirect()->route('admin.social-media.index')
-            ->with('success', 'Social media berhasil dihapus!');
+        return response()->json(['success' => true, 'is_active' => $social->is_active]);
     }
 }

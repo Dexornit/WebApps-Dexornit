@@ -28,8 +28,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
     Route::post('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
     
-    // Social Media
-    Route::resource('social-media', \App\Http\Controllers\Admin\SocialMediaController::class);
+    // Social Media — simple preset management
+    Route::get('/social-media', [\App\Http\Controllers\Admin\SocialMediaController::class, 'index'])->name('social-media.index');
+    Route::post('/social-media', [\App\Http\Controllers\Admin\SocialMediaController::class, 'updateAll'])->name('social-media.updateAll');
+    Route::post('/social-media/{platform}/toggle', [\App\Http\Controllers\Admin\SocialMediaController::class, 'toggle'])->name('social-media.toggle');
+
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

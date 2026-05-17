@@ -268,37 +268,33 @@
         <div class="section-header">
             <span class="section-tag">Kontak</span>
             <h2 class="section-title">Hubungi <span class="highlight">Kami</span></h2>
-            <p class="section-subtitle">Ada pertanyaan? Jangan ragu untuk menghubungi kami melalui form di bawah ini.</p>
+            <p class="section-subtitle">Ada pertanyaan? Jangan ragu untuk menghubungi kami melalui channel di bawah ini.</p>
         </div>
         <div class="contact__grid">
             <div class="contact__info">
-                <div class="contact__info-card" id="contact-email">
-                    <div class="contact__info-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                {{-- Tampilkan hanya social media yang aktif --}}
+                @forelse($socialMedia as $social)
+                    @php $meta = $social->platform_meta; @endphp
+                    <a href="{{ $social->url }}" target="_blank" rel="noopener"
+                       class="contact__info-card" id="contact-{{ $social->platform }}"
+                       style="display:flex; align-items:center; gap:16px; padding:16px 20px; background:var(--color-white); border:3px solid var(--border-color); border-radius:14px; margin-bottom:14px; text-decoration:none; color:var(--color-black); transition:all 0.2s; box-shadow:4px 4px 0 var(--border-color);"
+                       onmouseover="this.style.transform='translate(-2px,-2px)'; this.style.boxShadow='6px 6px 0 var(--border-color)';"
+                       onmouseout="this.style.transform=''; this.style.boxShadow='4px 4px 0 var(--border-color)';">
+                        <div style="width:44px; height:44px; border-radius:12px; background:{{ $meta['color'] }}20; border:2px solid {{ $meta['color'] }}40; display:flex; align-items:center; justify-content:center; color:{{ $meta['color'] }}; flex-shrink:0;">
+                            <div style="width:24px; height:24px;">{!! $meta['svg'] !!}</div>
+                        </div>
+                        <div>
+                            <h4 style="font-weight:700; font-size:0.95rem; margin:0 0 2px;">{{ $meta['label'] }}</h4>
+                            <p style="font-size:0.82rem; color:#666; margin:0;">{{ $social->url }}</p>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; color:#aaa;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                @empty
+                    <div style="padding:24px; background:var(--color-white); border:3px solid var(--border-color); border-radius:14px; color:#888; text-align:center;">
+                        <p style="font-size:0.95rem;">Belum ada kontak yang dikonfigurasi.</p>
+                        <a href="{{ route('admin.social-media.index') }}" style="color:var(--color-coral); font-weight:600; font-size:0.85rem;">Konfigurasi di Admin →</a>
                     </div>
-                    <div>
-                        <h4>Email</h4>
-                        <p>support@dexornit.store</p>
-                    </div>
-                </div>
-                <div class="contact__info-card" id="contact-whatsapp">
-                    <div class="contact__info-icon contact__info-icon--green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    </div>
-                    <div>
-                        <h4>WhatsApp</h4>
-                        <p>+62 812-3456-7890</p>
-                    </div>
-                </div>
-                <div class="contact__info-card" id="contact-instagram">
-                    <div class="contact__info-icon contact__info-icon--pink">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-                    </div>
-                    <div>
-                        <h4>Instagram</h4>
-                        <p>@dexornit.store</p>
-                    </div>
-                </div>
+                @endforelse
             </div>
             <form class="contact__form" id="contact-form">
                 <div class="contact__form-group">
@@ -322,4 +318,4 @@
     </div>
 </section>
 
-@endsection
+
