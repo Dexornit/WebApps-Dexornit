@@ -23,7 +23,7 @@ class HomeController extends Controller
 
         // Get active social media links
         $socialMedia = \App\Models\SocialMedia::where('is_active', true)
-            ->orderBy('order')
+            ->orderBy('id')
             ->get();
 
         // Prepare products data for JavaScript
