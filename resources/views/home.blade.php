@@ -272,27 +272,22 @@
         </div>
         <div class="contact__grid">
             <div class="contact__info">
-                {{-- Tampilkan hanya social media yang aktif --}}
                 @forelse($socialMedia as $social)
                     @php $meta = $social->platform_meta; @endphp
-                    <a href="{{ $social->url }}" target="_blank" rel="noopener"
-                       class="contact__info-card" id="contact-{{ $social->platform }}"
-                       style="display:flex; align-items:center; gap:16px; padding:16px 20px; background:var(--color-white); border:3px solid var(--border-color); border-radius:14px; margin-bottom:14px; text-decoration:none; color:var(--color-black); transition:all 0.2s; box-shadow:4px 4px 0 var(--border-color);"
-                       onmouseover="this.style.transform='translate(-2px,-2px)'; this.style.boxShadow='6px 6px 0 var(--border-color)';"
-                       onmouseout="this.style.transform=''; this.style.boxShadow='4px 4px 0 var(--border-color)';">
-                        <div style="width:44px; height:44px; border-radius:12px; background:{{ $meta['color'] }}20; border:2px solid {{ $meta['color'] }}40; display:flex; align-items:center; justify-content:center; color:{{ $meta['color'] }}; flex-shrink:0;">
-                            <div style="width:24px; height:24px;">{!! $meta['svg'] !!}</div>
+                    <a href="{{ $social->url }}" target="_blank" rel="noopener" class="contact__info-card" id="contact-{{ $social->platform }}" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:0;">
+                        <div class="contact__info-icon" style="background:{{ $meta['color'] }}20; color:{{ $meta['color'] }};">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                {!! preg_replace('/<svg[^>]*>|<\/svg>/', '', $meta['svg']) !!}
+                            </svg>
                         </div>
                         <div>
-                            <h4 style="font-weight:700; font-size:0.95rem; margin:0 0 2px;">{{ $meta['label'] }}</h4>
-                            <p style="font-size:0.82rem; color:#666; margin:0;">{{ $social->url }}</p>
+                            <h4>{{ $meta['label'] }}</h4>
+                            <p>{{ $social->url }}</p>
                         </div>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; color:#aaa;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
                 @empty
-                    <div style="padding:24px; background:var(--color-white); border:3px solid var(--border-color); border-radius:14px; color:#888; text-align:center;">
-                        <p style="font-size:0.95rem;">Belum ada kontak yang dikonfigurasi.</p>
-                        <a href="{{ route('admin.social-media.index') }}" style="color:var(--color-coral); font-weight:600; font-size:0.85rem;">Konfigurasi di Admin →</a>
+                    <div class="contact__info-card" id="contact-empty" style="color:#888; text-align:center;">
+                        <p>Belum ada kontak yang dikonfigurasi.</p>
                     </div>
                 @endforelse
             </div>
@@ -318,4 +313,5 @@
     </div>
 </section>
 
+@endsection
 
