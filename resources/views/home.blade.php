@@ -274,17 +274,20 @@
             <div class="contact__info">
                 @forelse($socialMedia as $social)
                     @php $meta = $social->platform_meta; @endphp
-                    <a href="{{ $social->url }}" target="_blank" rel="noopener" class="contact__info-card" id="contact-{{ $social->platform }}" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:0;">
-                        <div class="contact__info-icon" style="background:{{ $meta['color'] }}20; color:{{ $meta['color'] }};">
+                    <a href="{{ $social->url }}" target="_blank" rel="noopener"
+                       class="contact__info-card" id="contact-{{ $social->platform }}"
+                       style="text-decoration:none; color:inherit;">
+                        <div class="contact__info-icon" style="background:{{ $meta['color'] }}20; color:{{ $meta['color'] }}; flex-shrink:0;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 {!! preg_replace('/<svg[^>]*>|<\/svg>/', '', $meta['svg']) !!}
                             </svg>
                         </div>
-                        <div>
-                            <h4>{{ $meta['label'] }}</h4>
-                            <p>{{ $social->url }}</p>
+                        <div style="min-width:0;">
+                            <h4 style="margin:0 0 4px; font-size:1rem;">{{ $meta['label'] }}</h4>
+                            <p style="margin:0; font-size:0.82rem; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $social->url }}</p>
                         </div>
                     </a>
+
                 @empty
                     <div class="contact__info-card" id="contact-empty" style="color:#888; text-align:center;">
                         <p>Belum ada kontak yang dikonfigurasi.</p>

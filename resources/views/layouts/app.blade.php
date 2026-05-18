@@ -28,6 +28,7 @@
                 <li><a href="{{ route('home') }}#services" class="navbar__link" data-section="services">Layanan</a></li>
                 <li><a href="{{ route('home') }}#products" class="navbar__link" data-section="products">Produk</a></li>
                 <li><a href="{{ route('home') }}#testimonials" class="navbar__link" data-section="testimonials">Testimoni</a></li>
+                <li><a href="{{ route('tools.index') }}" class="navbar__link" data-section="tools">Tools</a></li>
                 <li><a href="{{ route('home') }}#contact" class="navbar__link" data-section="contact">Kontak</a></li>
                 @auth
                     <li><a href="{{ route('admin.dashboard') }}" class="navbar__link" style="background: var(--color-coral); color: var(--color-white); border-color: var(--color-black); box-shadow: 2px 2px 0px var(--color-black);">Dashboard</a></li>

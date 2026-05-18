@@ -15,6 +15,10 @@ Route::get('/install', function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/product/{id}', [HomeController::class, 'show'])->name('product.show');
 
+// Tools routes
+Route::get('/tools', [\App\Http\Controllers\ToolsController::class, 'index'])->name('tools.index');
+Route::get('/tools/a2f', [\App\Http\Controllers\ToolsController::class, 'a2f'])->name('tools.a2f');
+
 // Admin routes - protected by auth middleware
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
