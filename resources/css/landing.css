@@ -1466,8 +1466,8 @@ input, textarea {
 }
 
 .footer__social {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1475,6 +1475,15 @@ input, textarea {
     border-radius: 10px;
     color: var(--color-white);
     transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+/* Constrain SVG size inside footer social icons */
+.footer__social svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    flex-shrink: 0;
 }
 
 .footer__social:hover {
@@ -1699,9 +1708,24 @@ input, textarea {
 
     .navbar__link {
         width: 100%;
-        font-size: 1.2rem;
-        padding: 14px 20px;
+        font-size: 1rem;
+        padding: 10px 16px;
         text-align: center;
+        border-radius: 8px;
+    }
+
+    /* On mobile, active link should not be too boxy */
+    .navbar__link.active {
+        background: var(--color-pastel-yellow);
+        border: 2px solid var(--color-black);
+        box-shadow: 2px 2px 0 var(--color-black);
+        font-weight: 700;
+    }
+
+    .navbar__link:hover {
+        background: var(--color-pastel-yellow);
+        border-color: var(--color-black);
+        box-shadow: 2px 2px 0 var(--color-black);
     }
 
     .navbar__overlay {
@@ -1780,9 +1804,17 @@ input, textarea {
     }
 
     .about__card-icon {
-        width: 44px;
-        height: 44px;
-        margin-bottom: 14px;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+
+    /* Scale SVG inside about card icon on mobile */
+    .about__card-icon svg {
+        width: 22px !important;
+        height: 22px !important;
     }
 
     .about__card-title {
@@ -1990,9 +2022,15 @@ input, textarea {
     }
 
     .about__card-icon {
-        width: 36px;
-        height: 36px;
-        margin-bottom: 10px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        margin-bottom: 8px;
+    }
+
+    .about__card-icon svg {
+        width: 18px !important;
+        height: 18px !important;
     }
 
     .about__card-title {

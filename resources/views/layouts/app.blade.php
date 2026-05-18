@@ -23,12 +23,12 @@
             </a>
 
             <ul class="navbar__menu" id="nav-menu">
-                <li><a href="{{ route('home') }}#home" class="navbar__link active" data-section="home">Beranda</a></li>
+                <li><a href="{{ route('home') }}#home" class="navbar__link {{ request()->routeIs('home') ? 'active' : '' }}" data-section="home">Beranda</a></li>
                 <li><a href="{{ route('home') }}#about" class="navbar__link" data-section="about">Tentang</a></li>
                 <li><a href="{{ route('home') }}#services" class="navbar__link" data-section="services">Layanan</a></li>
                 <li><a href="{{ route('home') }}#products" class="navbar__link" data-section="products">Produk</a></li>
                 <li><a href="{{ route('home') }}#testimonials" class="navbar__link" data-section="testimonials">Testimoni</a></li>
-                <li><a href="{{ route('tools.index') }}" class="navbar__link" data-section="tools">Tools</a></li>
+                <li><a href="{{ route('tools.index') }}" class="navbar__link {{ request()->routeIs('tools.*') ? 'active' : '' }}" data-section="tools">Tools</a></li>
                 <li><a href="{{ route('home') }}#contact" class="navbar__link" data-section="contact">Kontak</a></li>
                 @auth
                     <li><a href="{{ route('admin.dashboard') }}" class="navbar__link" style="background: var(--color-coral); color: var(--color-white); border-color: var(--color-black); box-shadow: 2px 2px 0px var(--color-black);">Dashboard</a></li>

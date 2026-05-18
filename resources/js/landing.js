@@ -67,10 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Active link on scroll
+    // Active link on scroll — only on home page where sections exist
     const sections = document.querySelectorAll('section[id]');
+    const isHomePage = sections.length > 0;
 
     function updateActiveNav() {
+        if (!isHomePage) return;
         const scrollY = window.scrollY + 100;
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
@@ -79,16 +81,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
                 navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('data-section') === sectionId) {
-                        link.classList.add('active');
+                    const sec = link.getAttribute('data-section');
+                    // Don't touch 'tools' link active state — it's set server-side
+                    if (sec && sec !== 'tools') {
+                        link.classList.remove('active');
+                        if (sec === sectionId) {
+                            link.classList.add('active');
+                        }
                     }
                 });
             }
         });
     }
 
-    window.addEventListener('scroll', updateActiveNav);
+    if (isHomePage) {
+        window.addEventListener('scroll', updateActiveNav);
+    }
 
     // ==================== COUNTER ANIMATION ====================
     function animateCounters() {
