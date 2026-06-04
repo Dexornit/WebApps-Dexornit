@@ -258,7 +258,6 @@
             </div>
         @endif
 
-        {{-- ─── MOBILE CARDS (≤768px, table hidden via CSS) ─── --}}
         <div class="prod-mobile-list">
             @foreach($products as $product)
             <div class="prod-m-card {{ $product->trashed() ? 'prod-m-card--deleted' : '' }}">

@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- ─── Welcome ─────────────────────────────────────────────────── --}}
 <div class="dash-welcome">
     <div>
         <h2 class="dash-welcome__title">Welcome back, {{ Auth::user()->name }}! 👋</h2>
@@ -13,7 +12,6 @@
     </div>
 </div>
 
-{{-- ─── Stats Cards ──────────────────────────────────────────────── --}}
 <div class="dash-stats">
     @php
         $cards = [
@@ -55,7 +53,6 @@
     @endforeach
 </div>
 
-{{-- ─── Quick Actions ────────────────────────────────────────────── --}}
 <div class="dash-card" style="margin-bottom: 24px;">
     <h3 class="dash-card__title">Quick Actions</h3>
     <div class="dash-actions">
@@ -78,7 +75,6 @@
     </div>
 </div>
 
-{{-- ─── Recent Products ──────────────────────────────────────────── --}}
 <div class="dash-card">
     <div class="dash-card__header">
         <h3 class="dash-card__title" style="margin-bottom:0;">Recent Products</h3>
@@ -87,7 +83,6 @@
 
     @if($recentProducts->count() > 0)
 
-        {{-- TABLE — visible on md+ --}}
         <div class="dash-table-wrap">
             <table class="dash-table">
                 <thead>
@@ -149,7 +144,6 @@
             </table>
         </div>
 
-        {{-- CARDS — visible on mobile only --}}
         <div class="dash-product-cards">
             @foreach($recentProducts as $product)
             <div class="product-card-m">

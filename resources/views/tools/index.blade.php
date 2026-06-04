@@ -67,7 +67,6 @@
 .tool-card--disabled .tool-card__cta { color: #aaa; }
 </style>
 
-{{-- Hero --}}
 <div class="tools-hero">
     <div class="container">
         <div class="tools-hero__badge">
@@ -83,12 +82,10 @@
     </div>
 </div>
 
-{{-- Tools Grid --}}
 <div style="background: var(--color-cream);">
 <div class="container">
 <div class="tools-grid">
 
-    {{-- A2F Authenticator --}}
     <a href="{{ route('tools.a2f') }}" class="tool-card">
         <span class="tool-card__badge badge--new">Baru</span>
         <div class="tool-card__icon" style="background:#e8f5e9;">
@@ -105,7 +102,6 @@
         </span>
     </a>
 
-    {{-- TMail --}}
     <a href="https://mail.wanseven.com" target="_blank" rel="noopener" class="tool-card">
         <span class="tool-card__badge badge--ext">↗ Subdomain</span>
         <div class="tool-card__icon" style="background:#e3f2fd;">
@@ -122,7 +118,6 @@
         </span>
     </a>
 
-    {{-- Password Generator (coming soon) --}}
     <div class="tool-card tool-card--disabled">
         <span class="tool-card__badge badge--soon">Segera</span>
         <div class="tool-card__icon" style="background:#f3e5f5;">
@@ -135,7 +130,6 @@
         <span class="tool-card__cta">Segera Hadir</span>
     </div>
 
-    {{-- URL Shortener (coming soon) --}}
     <div class="tool-card tool-card--disabled">
         <span class="tool-card__badge badge--soon">Segera</span>
         <div class="tool-card__icon" style="background:#fff3e0;">

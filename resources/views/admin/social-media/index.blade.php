@@ -20,7 +20,6 @@
         </button>
     </div>
 
-    {{-- Info banner --}}
     @if(session('success'))
         <div style="padding:14px 18px; background:var(--color-pastel-green); border:var(--border-width) solid var(--border-color); border-radius:10px; margin-bottom:20px; font-weight:600;">
             ✓ {{ session('success') }}
@@ -39,10 +38,8 @@
             <div class="sm-card {{ $isActive ? 'sm-card--active' : '' }}" id="card-{{ $key }}"
                  style="background:var(--color-white); border:var(--border-width) solid var(--border-color); border-radius:14px; padding:20px; box-shadow:var(--shadow-brutal); transition:all 0.2s;">
 
-                {{-- Header: icon + nama + toggle --}}
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        {{-- Platform icon --}}
                         <div style="width:44px; height:44px; border-radius:12px; background:{{ $meta['color'] }}18; border:2px solid {{ $meta['color'] }}40; display:flex; align-items:center; justify-content:center; color:{{ $meta['color'] }}; flex-shrink:0;">
                             <div style="width:24px; height:24px;">
                                 {!! $meta['svg'] !!}
@@ -56,7 +53,6 @@
                         </div>
                     </div>
 
-                    {{-- Toggle switch --}}
                     <label class="toggle-switch" style="cursor:pointer; display:flex; align-items:center; gap:8px; user-select:none;">
                         <input type="checkbox"
                                name="active[{{ $key }}]"
@@ -73,7 +69,6 @@
                     </label>
                 </div>
 
-                {{-- URL input --}}
                 <div>
                     <label style="display:block; font-size:0.8rem; font-weight:600; color:#555; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em;">
                         Link / URL
@@ -98,7 +93,6 @@
 
     </div>
 
-    {{-- Sticky save button on mobile --}}
     <div style="margin-top:32px; display:flex; justify-content:flex-end;">
         <button type="submit" class="admin-header__btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

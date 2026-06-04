@@ -137,7 +137,6 @@
     </a>
 
     <div class="a2f-card-main">
-        {{-- Header --}}
         <div class="a2f-head">
             <div class="a2f-head-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -151,7 +150,6 @@
             </div>
         </div>
 
-        {{-- Mode toggle --}}
         <div style="overflow:hidden; margin-bottom: 8px;">
             <button class="a2f-bulk-toggle" id="toggleBulk" onclick="switchMode()">
                 <span id="bulkLabel">☰ Bulk Mode</span>
@@ -159,7 +157,6 @@
             <label class="a2f-label" id="inputLabel">Secret Key</label>
         </div>
 
-        {{-- Single input --}}
         <div id="singleMode">
             <input type="text" class="a2f-input" id="secretInput"
                 placeholder="Contoh: Q5OH OT7D G73T AAAA BBBB CCCC DDDD"
@@ -170,7 +167,6 @@
             </p>
         </div>
 
-        {{-- Bulk input --}}
         <div id="bulkMode" style="display:none;">
             <textarea class="a2f-input" id="bulkInput" rows="5"
                 placeholder="Satu secret key per baris:&#10;JBSWY3DPEHPK3PXP&#10;Q5OHOROT7DG73TAA&#10;..."
@@ -185,7 +181,6 @@
             Generate Kode 2FA
         </button>
 
-        {{-- Single Result --}}
         <div class="a2f-result" id="singleResult">
             <div class="a2f-result-row">
                 <div>
@@ -219,7 +214,6 @@
             </div>
         </div>
 
-        {{-- Bulk Results --}}
         <div id="bulkResults" class="a2f-bulk-results"></div>
     </div>
 </div>
